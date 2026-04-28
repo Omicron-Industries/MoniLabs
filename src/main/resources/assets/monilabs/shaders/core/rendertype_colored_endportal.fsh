@@ -1,4 +1,4 @@
-#version 150
+#version 330 core
 
 #line 0 1
 /*#version 150*/
@@ -18,7 +18,9 @@ uniform float GameTime;
 uniform int EndPortalLayers;
 
 in vec4 texProj0;
-in vec3 vColor;
+flat in vec3 vBaseColor;
+flat in vec4 vParticleSpeeds;
+flat in uvec4 vColors;
 
 const vec3[] COLORS = vec3[](
 vec3(0.022087, 0.098399, 0.110818),
@@ -61,10 +63,10 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-mat4 end_portal_layer(float layer) {
+mat4 end_portal_layer(float layer, float speedModifier) {
     mat4 translate = mat4(
     1.0, 0.0, 0.0, 17.0 / layer,
-    0.0, 1.0, 0.0, (2.0 + layer / 1.5) * (GameTime * 1.5),
+    0.0, 1.0, 0.0, (2.0 + layer / 1.5) * (GameTime * 1.5 * speedModifier),
     0.0, 0.0, 1.0, 0.0,
     0.0, 0.0, 0.0, 1.0
     );
@@ -76,18 +78,69 @@ mat4 end_portal_layer(float layer) {
     return mat4(scale * rotate) * translate * SCALE_TRANSLATE;
 }
 
+void unpackPalette(uvec4 packedColors, out vec4[4] palette) {
+    for (int i = 0; i < 4; i++) {
+        uint c = packedColors[i];
+        palette[i] = vec4(
+            float((c >> 16) & 0xFFu) / 255.0, //Red
+            float((c >> 8) & 0xFFu) / 255.0,  //Green
+            float((c >> 0) & 0xFFu) / 255.0,  //Blue
+            1.0 //Alpha
+        );
+    }
+}
+
+void expandPalette(vec4[4] base4, out vec4[16] palette) {
+    for (int i = 0; i < 4; i++) {
+        vec3 rgb = base4[i].rgb;
+        vec3 hsv = rgb2hsv(rgb);
+
+        int baseIdx = i * 4;
+
+        //Original
+        palette[baseIdx] = base4[i];
+
+        //Brighter
+        palette[baseIdx + 1] = vec4(hsv2rgb(vec3(
+        hsv.x,
+        clamp(hsv.y - 0.05, 0.0, 1.0),
+        clamp(hsv.z + 0.15, 0.0, 1.0)
+        )), 1.0);
+
+        //Darker
+        palette[baseIdx + 2] = vec4(hsv2rgb(vec3(
+        hsv.x,
+        clamp(hsv.y + 0.1, 0.0, 1.0),
+        clamp(hsv.z - 0.2, 0.0, 1.0)
+        )), 1.0);
+
+        //Hue shifted
+        palette[baseIdx + 3] = vec4(hsv2rgb(vec3(
+        fract(hsv.x + 0.08),
+        hsv.y,
+        hsv.z
+        )), 1.0);
+    }
+}
+
 out vec4 fragColor;
 
 void main() {
-    vec3 color = textureProj(Sampler0, texProj0).rgb * COLORS[0];
+    float speeds[4] = float[](vParticleSpeeds.x, vParticleSpeeds.y, vParticleSpeeds.z, vParticleSpeeds.w);
+    vec4 palette[4];
+    vec4 expandedPalette[16];
+    unpackPalette(vColors, palette);
+    expandPalette(palette, expandedPalette);
+
+    vec3 color = textureProj(Sampler0, texProj0).rgb * vBaseColor.rgb;
     for (int i = 0; i < EndPortalLayers; i++) {
-        color += textureProj(Sampler1, texProj0 * end_portal_layer(float(i + 1))).rgb * COLORS[i];
+        vec3 textureColor = textureProj(Sampler1, texProj0 * end_portal_layer(float(i + 1), speeds[i / 4])).rgb;
+        bool isStar = length(textureColor) > 0.1;
+        bool isBlackish = length(expandedPalette[i].rgb) < 0.1;
+        if (isBlackish && isStar)
+            color = expandedPalette[i].rgb;
+        else
+            color += textureColor * expandedPalette[i].rgb;
     }
-    vec3 origHsv = rgb2hsv(color);
-    vec3 destHsv = rgb2hsv(vColor);
-    //copy hue and saturation
-    origHsv.x = destHsv.x;
-    origHsv.y = destHsv.y;
-    color.rgb = hsv2rgb(origHsv);
     fragColor = vec4(color, 1.0);
 }
