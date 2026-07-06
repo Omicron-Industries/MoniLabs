@@ -304,9 +304,4 @@ public class BlackHoleRenderer {
         poseStack.mulPoseMatrix(viewMatrix);
         renderCore(poseStack, lastCameraPos, projectionMatrix);
     }
-
-    @SubscribeEvent
-    public static void onResize(ScreenEvent.Init.Post event) {
-        updateTextures();
-    }
 }
