@@ -1,3 +1,5 @@
-# Moni Labs 0.21.7
+# Moni Labs 0.21.8
 
-* TES now notifies machines that they have energy available when on, allowing them to work without replacing the machines
+* Fix rare error from the TES shader asking for a texture slot it can't get (thanks JenyaRostov)
+* Add auto-complete card support for extended pattern providers (thanks tamer bayar)
+* Add internal static var for an overclocks-as-parallels recipe modifier
