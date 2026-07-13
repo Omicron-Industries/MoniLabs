@@ -28,7 +28,9 @@
     "GameRendererMixin",
     "ProgramMixin",
     "accessor.TerrainRenderPassAccessor",
-    "accessor.ShaderChunkRendererAccessor"
+    "accessor.ShaderChunkRendererAccessor",
+    "IrisVertexFormatsMixin",
+    "ExtendedShaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
