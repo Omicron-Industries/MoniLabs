@@ -25,7 +25,7 @@ public class MoniShaders {
                     (shaderInstance -> WORMHOLE_SHADER = shaderInstance));
 
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                    MoniLabs.id("rendertype_colored_endportal"), DefaultVertexFormat.POSITION_COLOR),
+                    MoniLabs.id("rendertype_colored_endportal"), MoniRenderTypes.POSITION_VEC4_COLOR_PACKEDVEC4UINTS),
                     (shaderInstance -> ENDPORTAL_COLORED_SHADER = shaderInstance));
         } catch (IOException e) {
             throw new RuntimeException(e);

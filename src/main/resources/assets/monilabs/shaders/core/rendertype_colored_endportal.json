@@ -6,7 +6,12 @@
   },
   "vertex": "monilabs:rendertype_colored_endportal",
   "fragment": "monilabs:rendertype_colored_endportal",
-  "attributes": [],
+  "attributes": [
+    "Position",
+    "BaseColor",
+    "ParticleSpeeds",
+    "Colors"
+  ],
   "samplers": [
     { "name": "Sampler0" },
     { "name": "Sampler1" }
