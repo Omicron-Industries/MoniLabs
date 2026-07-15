@@ -165,6 +165,8 @@ public class MoniRecipeModifiers {
         return ModifierFunction.IDENTITY;
     }
 
+    public static RecipeModifier OC_AS_PARALLELS = MoniRecipeModifiers::greenhouseOCasParallels;
+
     public static ModifierFunction greenhouseOCasParallels(MetaMachine machine, GTRecipe recipe) {
         var workableMachine = (WorkableElectricMultiblockMachine) machine;
 

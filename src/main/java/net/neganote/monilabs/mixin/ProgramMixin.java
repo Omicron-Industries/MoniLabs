@@ -77,13 +77,59 @@ public class ProgramMixin {
     }
 
     @Unique
-    private static String moniLabs$modifyShader(String code, ShaderAnalysisResult result) {
+    private static String moniLabs$modifyIrisShaderpackShader(String code, ShaderAnalysisResult result,
+                                                              Program.Type type) {
+        if (type == Program.Type.VERTEX) {
+            return code.replace("void main() {", """
+                    in uvec4 Colors;
+                    in vec4 ParticleSpeeds;
+                    flat out uvec4 vColors;
+                    flat out vec4 vParticleSpeeds;
+
+                    void main () {
+                    vColors = Colors;
+                    vParticleSpeeds = ParticleSpeeds;""");
+        }
         if (!result.valid()) {
             MoniLabs.LOGGER.log(Level.ERROR,
                     "Could not successfully analyze current shader for colored ender portal inject");
             return code;
         }
         String newSource = code.replace("void main", """
+
+                const vec3[] COLORS = vec3[](
+                vec3(0.022087, 0.098399, 0.110818),
+                vec3(0.011892, 0.095924, 0.089485),
+                vec3(0.027636, 0.101689, 0.100326),
+                vec3(0.046564, 0.109883, 0.114838),
+                vec3(0.064901, 0.117696, 0.097189),
+                vec3(0.063761, 0.086895, 0.123646),
+                vec3(0.084817, 0.111994, 0.166380),
+                vec3(0.097489, 0.154120, 0.091064),
+                vec3(0.106152, 0.131144, 0.195191),
+                vec3(0.097721, 0.110188, 0.187229),
+                vec3(0.133516, 0.138278, 0.148582),
+                vec3(0.070006, 0.243332, 0.235792),
+                vec3(0.196766, 0.142899, 0.214696),
+                vec3(0.047281, 0.315338, 0.321970),
+                vec3(0.204675, 0.390010, 0.302066),
+                vec3(0.080955, 0.314821, 0.661491)
+                );
+
+                const mat4 SCALE_TRANSLATE = mat4(
+                0.5, 0.0, 0.0, 0.25,
+                0.0, 0.5, 0.0, 0.25,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0
+                );
+
+                mat2 mat2_rotate_z(float radians) {
+                    return mat2(
+                    cos(radians), -sin(radians),
+                    sin(radians), cos(radians)
+                    );
+                }
+
                 vec3 moni_rgb2hsv(vec3 c) {
                     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
                     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
@@ -98,19 +144,112 @@ public class ProgramMixin {
                     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
                     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
                 }
-                void main""");
-
-        newSource = newSource.replace(result.firstWriteLine(), """
-                if (iris_entityInfo.x == 6767) {
-                vec3 _origHsv = moni_rgb2hsv(%s.rgb);
-                vec3 _destHsv = moni_rgb2hsv(iris_vertexColor.rgb);
-                //copy hue and saturation
-                _origHsv.x = _destHsv.x;
-                _origHsv.y = _destHsv.y;
-                %s.rgb = moni_hsv2rgb(_origHsv);
+                void unpackPalette(uvec4 packedColors, out vec4[4] palette) {
+                    for (int i = 0; i < 4; i++) {
+                        uint c = packedColors[i];
+                        palette[i] = vec4(
+                            float((c >> 16) & 0xFFu) / 255.0, //Red
+                            float((c >> 8) & 0xFFu) / 255.0,  //Green
+                            float((c >> 0) & 0xFFu) / 255.0,  //Blue
+                            1.0 //Alpha
+                        );
+                    }
                 }
-                """.formatted(result.referencedVariable(), result.referencedVariable()) + "\n\t" +
-                result.firstWriteLine());
+
+                void expandPalette(vec4[4] base4, out vec4[16] palette) {
+                    for (int i = 0; i < 4; i++) {
+                        vec3 rgb = base4[i].rgb;
+                        vec3 hsv = moni_rgb2hsv(rgb);
+
+                        int baseIdx = i * 4;
+
+                        //Original
+                        palette[baseIdx] = base4[i];
+
+                        //Brighter
+                        palette[baseIdx + 1] = vec4(moni_hsv2rgb(vec3(
+                        hsv.x,
+                        clamp(hsv.y - 0.05, 0.0, 1.0),
+                        clamp(hsv.z + 0.15, 0.0, 1.0)
+                        )), 1.0);
+
+                        //Darker
+                        palette[baseIdx + 2] = vec4(moni_hsv2rgb(vec3(
+                        hsv.x,
+                        clamp(hsv.y + 0.1, 0.0, 1.0),
+                        clamp(hsv.z - 0.2, 0.0, 1.0)
+                        )), 1.0);
+
+                        //Hue shifted
+                        palette[baseIdx + 3] = vec4(moni_hsv2rgb(vec3(
+                        fract(hsv.x + 0.08),
+                        hsv.y,
+                        hsv.z
+                        )), 1.0);
+                    }
+                }
+
+
+                flat in vec4 vParticleSpeeds;
+                flat in uvec4 vColors;
+                uniform sampler2D _EndPortalTexture;
+                uniform sampler2D _EndSkyTexture;
+                #PLACEHOLDER_VIEWWIDTH
+                #PLACEHOLDER_VIEWHEIGHT
+                #PLACEHOLDER_FRAMETIMECOUNTER
+                void main""");
+        newSource = newSource.replace("#PLACEHOLDER_VIEWWIDTH",
+                newSource.contains("viewWidth") ? "" : "uniform float viewWidth;");
+        newSource = newSource.replace("#PLACEHOLDER_VIEWHEIGHT",
+                newSource.contains("viewHeight") ? "" : "uniform float viewHeight;");
+        newSource = newSource.replace("#PLACEHOLDER_FRAMETIMECOUNTER",
+                newSource.contains("frameTimeCounter") ? "" : "uniform float frameTimeCounter;");
+        // we do this to make sure that all referenced uniforms are in the source code before they are used
+        newSource = newSource.replace("void main", """
+                 mat4 end_portal_layer(float layer, float speedModifier) {
+                      mat4 translate = mat4(
+                      1.0, 0.0, 0.0, 17.0 / layer,
+                      0.0, 1.0, 0.0, (2.0 + layer / 1.5) * (float(frameTimeCounter) / 800 * speedModifier),
+                      0.0, 0.0, 1.0, 0.0,
+                      0.0, 0.0, 0.0, 1.0
+                      );
+
+                      mat2 rotate = mat2_rotate_z(radians((layer * layer * 4321.0 + layer * 9.0) * 2.0));
+
+                      mat2 scale = mat2((4.5 - layer / 4.0) * 2.0);
+
+                      return mat4(scale * rotate) * translate * SCALE_TRANSLATE;
+                  }
+                void main""");
+        newSource = newSource.replace(result.firstWriteLine(),
+                """
+                        if (iris_entityInfo.x == 6767) {
+                            float _speeds[4] = float[](vParticleSpeeds.x, vParticleSpeeds.y, vParticleSpeeds.z, vParticleSpeeds.w);
+                            vec4 _palette[4];
+                            vec4 _expandedPalette[16];
+                            unpackPalette(vColors, _palette);
+                            expandPalette(_palette, _expandedPalette);
+                            vec2 screenUV = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+
+                            vec3 _color = texture(_EndSkyTexture, screenUV).rgb * iris_vertexColor.rgb;
+                            for (int i = 0; i < 16; i++) {
+                                mat4 layer = end_portal_layer(float(i + 1), _speeds[i / 4]);
+                                vec4 transformed = vec4(screenUV, 1.0, 1.0) * layer;
+                                vec2 finalTexCoord = transformed.xy / transformed.w;
+                                vec3 textureColor = texture(_EndPortalTexture, finalTexCoord).rgb;
+                                bool isStar = length(textureColor) > 0.1;
+                                bool isBlackish = length(_expandedPalette[i].rgb) < 0.1;
+                                if (isBlackish && isStar)
+                                    _color = _expandedPalette[i].rgb;
+                                else
+                                    _color += textureColor * _expandedPalette[i].rgb;
+                            }
+
+                            %s.rgb = _color;
+                        }
+                        """
+                        .formatted(result.referencedVariable()) + "\n\t" +
+                        result.firstWriteLine());
         return newSource;
     }
 
@@ -120,9 +259,9 @@ public class ProgramMixin {
     private static String moniLabs$modifyIrisEntityDiffuseShader(InputStream sw, Charset input, Program.Type type,
                                                                  String name) throws IOException {
         String original = IOUtils.toString(sw, input);
-        if (name.contains("block_entity_diffuse") && type == Program.Type.FRAGMENT) {
+        if (name.contains("block_entity_diffuse")) {
             var analysisResult = moniLabs$analyzeShaderForColorWrite(original);
-            return moniLabs$modifyShader(original, analysisResult);
+            return moniLabs$modifyIrisShaderpackShader(original, analysisResult, type);
         }
 
         return original;

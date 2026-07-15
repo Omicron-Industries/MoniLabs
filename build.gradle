@@ -247,6 +247,8 @@ dependencies {
 
     // AAE because we need to redo their mixin
     modCompileOnly("maven.modrinth:advancedae:${aae_version}")
+
+    modCompileOnly("curse.maven:ex-pattern-provider-892005:8291632")
 }
 
 tasks.named('processResources', ProcessResources).configure {

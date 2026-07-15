@@ -20,6 +20,7 @@
     "aae.MixinEncodedPatternItemShim",
     "aae.MixinGuiTextShim",
     "aae.MixinPatternDetailsHelperShim",
+    "MixinEAERegistryHandler",
     "aae.MixinProcessingPatternItemShim"
   ],
   "client": [
@@ -30,8 +31,10 @@
     "ShaderChunkRendererMixin",
     "ShaderLoaderMixin",
     "TranslucentRenderMixin",
+    "accessor.TerrainRenderPassAccessor",
     "accessor.ShaderChunkRendererAccessor",
-    "accessor.TerrainRenderPassAccessor"
+    "IrisVertexFormatsMixin",
+    "ExtendedShaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -12,7 +12,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.neganote.monilabs.MoniLabs;
@@ -303,10 +302,5 @@ public class BlackHoleRenderer {
         poseStack.setIdentity();
         poseStack.mulPoseMatrix(viewMatrix);
         renderCore(poseStack, lastCameraPos, projectionMatrix);
-    }
-
-    @SubscribeEvent
-    public static void onResize(ScreenEvent.Init.Post event) {
-        updateTextures();
     }
 }
