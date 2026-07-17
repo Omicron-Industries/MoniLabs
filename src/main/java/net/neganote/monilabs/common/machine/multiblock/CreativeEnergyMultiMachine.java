@@ -5,20 +5,26 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblockMachine {
 
-    private static final Set<UUID> ACTIVE_OWNERS = new HashSet<>();
-    private static final Map<UUID, Boolean> PLAYER_CACHE = new HashMap<>();
+    private static final Map<UUID, Integer> ACTIVE_OWNER_COUNTS = new HashMap<>();
+
+    private static final Map<UUID, CacheEntry> PLAYER_CACHE = new HashMap<>();
+
+    private static final int CACHE_LIFETIME_TICKS = 20;
+
+    private record CacheEntry(boolean enabled, long cachedAtTick) {}
 
     private final ConditionalSubscriptionHandler creativeEnergySubscription;
+
+    private boolean currentlyActive = false;
 
     public CreativeEnergyMultiMachine(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
@@ -28,16 +34,28 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
     }
 
     public static boolean isCreativeEnergyEnabledFor(UUID playerUUID) {
-        if (ACTIVE_OWNERS.isEmpty()) return false;
-        return PLAYER_CACHE.computeIfAbsent(playerUUID, uuid -> {
-            MachineOwner owner = MachineOwner.getOwner(uuid);
-            if (owner == null) return false;
-            return ACTIVE_OWNERS.stream().anyMatch(owner::isPlayerInTeam);
-        });
+        if (ACTIVE_OWNER_COUNTS.isEmpty()) return false;
+
+        long now = currentTick();
+        CacheEntry cached = PLAYER_CACHE.get(playerUUID);
+        if (cached != null && (now - cached.cachedAtTick()) < CACHE_LIFETIME_TICKS) {
+            return cached.enabled();
+        }
+
+        MachineOwner owner = MachineOwner.getOwner(playerUUID);
+        boolean enabled = owner != null &&
+                ACTIVE_OWNER_COUNTS.keySet().stream().anyMatch(owner::isPlayerInTeam);
+        PLAYER_CACHE.put(playerUUID, new CacheEntry(enabled, now));
+        return enabled;
+    }
+
+    private static long currentTick() {
+        var server = ServerLifecycleHooks.getCurrentServer();
+        return server != null ? server.getTickCount() : 0L;
     }
 
     public static void clearActiveOwners() {
-        ACTIVE_OWNERS.clear();
+        ACTIVE_OWNER_COUNTS.clear();
         PLAYER_CACHE.clear();
     }
 
@@ -50,14 +68,21 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
 
     public void enableCreativeEnergy(boolean enabled) {
         if (!(getLevel() instanceof ServerLevel)) return;
+        if (enabled == currentlyActive) return;
+
         UUID ownerUUID = getOwnerUUID();
         if (ownerUUID == null) {
-            ownerUUID = new UUID(0L, 0L);
+            ownerUUID = MachineOwner.EMPTY;
         }
-        boolean changed = enabled ? ACTIVE_OWNERS.add(ownerUUID) : ACTIVE_OWNERS.remove(ownerUUID);
-        if (changed) {
-            PLAYER_CACHE.clear();
+
+        if (enabled) {
+            ACTIVE_OWNER_COUNTS.merge(ownerUUID, 1, Integer::sum);
+        } else {
+            ACTIVE_OWNER_COUNTS.computeIfPresent(ownerUUID, (uuid, count) -> count > 1 ? count - 1 : null);
         }
+
+        currentlyActive = enabled;
+        PLAYER_CACHE.clear();
     }
 
     @Override
