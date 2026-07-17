@@ -14,7 +14,6 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblockMachine {
 
-
     private static final Map<UUID, Integer> ACTIVE_OWNER_COUNTS = new HashMap<>();
 
     private static final Map<UUID, CacheEntry> PLAYER_CACHE = new HashMap<>();
