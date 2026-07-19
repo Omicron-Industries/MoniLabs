@@ -7,7 +7,6 @@ import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 
 import com.lowdragmc.lowdraglib.gui.texture.ResourceBorderTexture;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
-import com.lowdragmc.lowdraglib.gui.widget.SelectorWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
@@ -18,12 +17,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neganote.monilabs.common.gui.widget.IndexedSelectorWidget;
 import net.neganote.monilabs.common.machine.multiblock.Microverse;
 import net.neganote.monilabs.common.machine.multiblock.MicroverseProjectorMachine;
 
 import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
@@ -63,21 +61,6 @@ public class AdvancedMicroverseTypeSensorHatchPartMachine extends MicroverseType
         return true;
     }
 
-    // Now uses getDisplayName() for plain white text
-    private static final List<String> ACTUAL_MICROVERSE_DISPLAY_NAMES = Arrays.stream(Microverse.values())
-            .map(Microverse::getDisplayName)
-            .toList();
-
-    public static final Object2ObjectMap<String, Microverse> NAME_TO_MICROVERSE = new Object2ObjectOpenHashMap<>();
-    public static final Object2ObjectMap<Microverse, String> MICROVERSE_TO_NAME = new Object2ObjectOpenHashMap<>();
-
-    static {
-        for (int i = 0; i < Microverse.values().length; i++) {
-            NAME_TO_MICROVERSE.put(ACTUAL_MICROVERSE_DISPLAY_NAMES.get(i), Microverse.values()[i]);
-            MICROVERSE_TO_NAME.put(Microverse.values()[i], ACTUAL_MICROVERSE_DISPLAY_NAMES.get(i));
-        }
-    }
-
     @Override
     public int getOutputSignal(@Nullable Direction direction) {
         if (direction == getFrontFacing().getOpposite()) {
@@ -100,16 +83,23 @@ public class AdvancedMicroverseTypeSensorHatchPartMachine extends MicroverseType
 
     @Override
     public Widget createUIWidget() {
+        List<String> displayNames = Arrays.stream(Microverse.values())
+                .map(Microverse::getDisplayName)
+                .toList();
+
         WidgetGroup group = new WidgetGroup(0, 0, 70, 70);
         group.addWidget(new LabelWidget(-40, 15, "gui.advanced_chroma_sensor.display"));
 
-        group.addWidget(new SelectorWidget(
+        group.addWidget(new IndexedSelectorWidget(
                 -5, 11, 80, 20,
-                ACTUAL_MICROVERSE_DISPLAY_NAMES, 0)
+                displayNames, 0)
                 .setMaxCount(3)
-                .setOnChanged(selectedName -> setDetectorMicroverse(NAME_TO_MICROVERSE.get(selectedName)))
+                .setOnChanged(selectedName -> {
+                    int idx = displayNames.indexOf(selectedName);
+                    if (idx >= 0) setDetectorMicroverse(Microverse.values()[idx]);
+                })
                 .setButtonBackground(ResourceBorderTexture.BUTTON_COMMON)
-                .setSupplier(() -> MICROVERSE_TO_NAME.get(getDetectorMicroverse())));
+                .setSupplier(() -> getDetectorMicroverse().getDisplayName()));
 
         group.addWidget(new ToggleButtonWidget(
                 80, 11, 20, 20,
