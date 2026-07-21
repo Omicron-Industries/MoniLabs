@@ -15,11 +15,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neganote.monilabs.common.gui.widget.IndexedSelectorWidget;
 import net.neganote.monilabs.common.machine.multiblock.Color;
 
 import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +28,6 @@ import java.util.List;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import static net.neganote.monilabs.common.machine.multiblock.Color.ACTUAL_COLORS;
-import static net.neganote.monilabs.common.machine.multiblock.Color.ACTUAL_COLOR_COUNT;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -51,20 +49,6 @@ public class AdvancedChromaSensorHatchPartMachine extends ChromaSensorHatchPartM
     @Persisted
     @DescSynced
     public boolean inverted = false;
-
-    public static final Object2ObjectMap<String, Color> NAME_TO_COLOR = new Object2ObjectOpenHashMap<>();
-    public static final Object2ObjectMap<Color, String> COLOR_TO_NAME = new Object2ObjectOpenHashMap<>();
-
-    private static final List<String> ACTUAL_COLOR_DISPLAY_NAMES = Arrays.stream(ACTUAL_COLORS)
-            .map(Color::getColoredDisplayName)
-            .toList();
-
-    static {
-        for (int i = 0; i < ACTUAL_COLOR_COUNT; i++) {
-            NAME_TO_COLOR.put(ACTUAL_COLOR_DISPLAY_NAMES.get(i), ACTUAL_COLORS[i]);
-            COLOR_TO_NAME.put(ACTUAL_COLORS[i], ACTUAL_COLOR_DISPLAY_NAMES.get(i));
-        }
-    }
 
     public AdvancedChromaSensorHatchPartMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -94,18 +78,25 @@ public class AdvancedChromaSensorHatchPartMachine extends ChromaSensorHatchPartM
 
     @Override
     public Widget createUIWidget() {
+        List<String> displayNames = Arrays.stream(ACTUAL_COLORS)
+                .map(Color::getColoredDisplayName)
+                .toList();
+
         WidgetGroup group = new WidgetGroup(0, 0, 70, 70);
 
         group.addWidget(new LabelWidget(-40, 15, "gui.monilabs.chroma.color.display"));
 
-        group.addWidget(new SelectorWidget(
+        group.addWidget(new IndexedSelectorWidget(
                 -5, 11, 80, 20,
-                ACTUAL_COLOR_DISPLAY_NAMES,
+                displayNames,
                 0)
                 .setMaxCount(3)
-                .setOnChanged(selectedName -> setDetectorColor(NAME_TO_COLOR.get(selectedName)))
+                .setOnChanged(selectedName -> {
+                    int idx = displayNames.indexOf(selectedName);
+                    if (idx >= 0) setDetectorColor(ACTUAL_COLORS[idx]);
+                })
                 .setButtonBackground(ResourceBorderTexture.BUTTON_COMMON)
-                .setSupplier(() -> COLOR_TO_NAME.get(getDetectorColor())));
+                .setSupplier(() -> getDetectorColor().getColoredDisplayName()));
 
         group.addWidget(new ToggleButtonWidget(
                 80, 11, 20, 20,
