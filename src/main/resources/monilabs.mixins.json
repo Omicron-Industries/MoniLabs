@@ -7,10 +7,14 @@
   "refmap": "mixins.monilabs.refmap.json",
   "mixins": [
     "DataAccessHatchMixin",
+    "IMaterialPartItemMixin",
     "KubeJSPluginsMixin",
+    "LargeTurbineMachineMixin",
     "NotifiableEnergyContainerMixin",
     "OpticalDataHatchMixin",
     "PowerSubstationMachineMixin",
+    "RotorHolderMachineMixin",
+    "TurbineRotorBehaviourMixin",
     "aae.MixinCraftingJobStatusPacketCtorShim",
     "aae.MixinCraftingServiceAAE",
     "aae.MixinEncodedPatternItemShim",
@@ -19,14 +23,14 @@
     "MixinEAERegistryHandler",
     "aae.MixinProcessingPatternItemShim"
   ],
-  "client":
-  [
-    "TranslucentRenderMixin",
-    "ShaderChunkRendererMixin",
+  "client": [
     "DefaultChunkRendererMixin",
-    "ShaderLoaderMixin",
     "GameRendererMixin",
+    "IDurabilityBarMixin",
     "ProgramMixin",
+    "ShaderChunkRendererMixin",
+    "ShaderLoaderMixin",
+    "TranslucentRenderMixin",
     "accessor.TerrainRenderPassAccessor",
     "accessor.ShaderChunkRendererAccessor",
     "IrisVertexFormatsMixin",
