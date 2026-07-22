@@ -710,18 +710,18 @@ public class MoniMachines {
             .register();
 
     // MAX stuff
-    public static MachineDefinition registerMaxLaserHatch(GTRegistrate registrate, IO io, int amperage,
-                                                          PartAbility ability) {
+    public static MachineDefinition registerLaserHatch(GTRegistrate registrate, IO io, int amperage,
+                                                       PartAbility ability, int tier) {
         String name = io == IN ? "target" : "source";
         return registerTieredMachines(registrate, amperage + "a_laser_" + name + "_hatch",
-                (holder, tier) -> new LaserHatchPartMachine(holder, io, tier, amperage), (tier, builder) -> builder
+                (holder, tierInner) -> new LaserHatchPartMachine(holder, io, tierInner, amperage), (tierInner, builder) -> builder
                         .langValue(VNF[tier] + "§r " + FormattingUtil.formatNumbers(amperage) + "§eA§r Laser " +
                                 FormattingUtil.toEnglishName(name) + " Hatch")
                         .rotationState(RotationState.ALL)
                         .tooltips(Component.translatable("gtceu.machine.laser_hatch." + name + ".tooltip"),
                                 Component.translatable("gtceu.machine.laser_hatch.both.tooltip"),
                                 Component.translatable("gtceu.universal.tooltip.voltage_" + (io == IN ? "in" : "out"),
-                                        FormattingUtil.formatNumbers(V[tier]), VNF[tier]),
+                                        FormattingUtil.formatNumbers(V[tierInner]), VNF[tierInner]),
                                 Component.translatable("gtceu.universal.tooltip.amperage_in", amperage),
                                 Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
                                         FormattingUtil
@@ -732,21 +732,34 @@ public class MoniMachines {
                         .modelProperty(IS_FORMED, false)
                         .overlayTieredHullModel(GTCEu.id("block/machine/part/laser_" + name + "_hatch"))
                         .register(),
-                GTValues.MAX)[0];
+                tier)[0];
     }
 
-    public static final MachineDefinition MAX_LASER_INPUT_HATCH_256 = registerMaxLaserHatch(REGISTRATE, IN,
-            256, PartAbility.INPUT_LASER);
-    public static final MachineDefinition MAX_LASER_OUTPUT_HATCH_256 = registerMaxLaserHatch(REGISTRATE, OUT,
-            256, PartAbility.OUTPUT_LASER);
-    public static final MachineDefinition MAX_LASER_INPUT_HATCH_1024 = registerMaxLaserHatch(REGISTRATE, IN,
-            1024, PartAbility.INPUT_LASER);
-    public static final MachineDefinition MAX_LASER_OUTPUT_HATCH_1024 = registerMaxLaserHatch(REGISTRATE, OUT,
-            1024, PartAbility.OUTPUT_LASER);
-    public static final MachineDefinition MAX_LASER_INPUT_HATCH_4096 = registerMaxLaserHatch(REGISTRATE, IN,
-            4096, PartAbility.INPUT_LASER);
-    public static final MachineDefinition MAX_LASER_OUTPUT_HATCH_4096 = registerMaxLaserHatch(REGISTRATE, OUT,
-            4096, PartAbility.OUTPUT_LASER);
+    public static final MachineDefinition MAX_LASER_INPUT_HATCH_256 = registerLaserHatch(REGISTRATE, IN,
+            256, PartAbility.INPUT_LASER, MAX);
+    public static final MachineDefinition MAX_LASER_OUTPUT_HATCH_256 = registerLaserHatch(REGISTRATE, OUT,
+            256, PartAbility.OUTPUT_LASER, MAX);
+    public static final MachineDefinition MAX_LASER_INPUT_HATCH_1024 = registerLaserHatch(REGISTRATE, IN,
+            1024, PartAbility.INPUT_LASER, MAX);
+    public static final MachineDefinition MAX_LASER_OUTPUT_HATCH_1024 = registerLaserHatch(REGISTRATE, OUT,
+            1024, PartAbility.OUTPUT_LASER, MAX);
+    public static final MachineDefinition MAX_LASER_INPUT_HATCH_4096 = registerLaserHatch(REGISTRATE, IN,
+            4096, PartAbility.INPUT_LASER, MAX);
+    public static final MachineDefinition MAX_LASER_OUTPUT_HATCH_4096 = registerLaserHatch(REGISTRATE, OUT,
+            4096, PartAbility.OUTPUT_LASER, MAX);
+
+    public static final MachineDefinition EV_LASER_INPUT_HATCH_256 = registerLaserHatch(REGISTRATE, IN,
+            256, PartAbility.INPUT_LASER, EV);
+    public static final MachineDefinition EV_LASER_OUTPUT_HATCH_256 = registerLaserHatch(REGISTRATE, OUT,
+            256, PartAbility.OUTPUT_LASER, EV);
+    public static final MachineDefinition EV_LASER_INPUT_HATCH_1024 = registerLaserHatch(REGISTRATE, IN,
+            1024, PartAbility.INPUT_LASER, EV);
+    public static final MachineDefinition EV_LASER_OUTPUT_HATCH_1024 = registerLaserHatch(REGISTRATE, OUT,
+            1024, PartAbility.OUTPUT_LASER, EV);
+    public static final MachineDefinition EV_LASER_INPUT_HATCH_4096 = registerLaserHatch(REGISTRATE, IN,
+            4096, PartAbility.INPUT_LASER, EV);
+    public static final MachineDefinition EV_LASER_OUTPUT_HATCH_4096 = registerLaserHatch(REGISTRATE, OUT,
+            4096, PartAbility.OUTPUT_LASER, EV);
 
     public static void init() {}
 }
