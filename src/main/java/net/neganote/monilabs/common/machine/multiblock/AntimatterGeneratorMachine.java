@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class AntimatterGeneratorMachine extends WorkableElectricMultiblockMachine {
 
     protected ConditionalSubscriptionHandler generationSubscription;
@@ -77,7 +76,7 @@ public class AntimatterGeneratorMachine extends WorkableElectricMultiblockMachin
     }
 
     @Override
-    public void invalidateStructure(String name) {
+    public void invalidateStructure(@NotNull String name) {
         super.invalidateStructure(name);
         generationSubscription.updateSubscription();
         setRenderState(getRenderState().setValue(RecipeLogic.STATUS_PROPERTY, RecipeLogic.Status.IDLE));
