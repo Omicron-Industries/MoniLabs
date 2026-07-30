@@ -1,11 +1,9 @@
 package net.neganote.monilabs.common.machine.multiblock;
 
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.blockentity.BlockEntityCreationInfo;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
-
-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
-import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
+import com.gregtechceu.gtceu.api.sync_system.annotations.SaveField;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -13,32 +11,31 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.neganote.monilabs.saveddata.UniqueMultiblockSavedData;
 
+import brachy.modularui.api.drawable.Text;
+import brachy.modularui.api.widget.IWidget;
+import brachy.modularui.value.sync.BooleanSyncValue;
+import brachy.modularui.value.sync.PanelSyncManager;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
-// Copied from CosmicCore with some minor changes (thank you Caitlynn!)
+// Copied from CosmicCore with some major changes (thank you Caitlynn!)
 public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMultiblockMachine {
 
-    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-            UniqueWorkableElectricMultiblockMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
-
-    public UniqueWorkableElectricMultiblockMachine(IMachineBlockEntity holder, Object... args) {
-        super(holder, args);
-    }
-
-    @Override
-    public @NotNull ManagedFieldHolder getFieldHolder() {
-        return MANAGED_FIELD_HOLDER;
+    public UniqueWorkableElectricMultiblockMachine(BlockEntityCreationInfo info) {
+        super(info);
     }
 
     // Used to make sure you cannot have more than one of this multiblock per player / team
-    @Persisted
+    @Getter
+    @SaveField
     public boolean isDuplicate = false;
 
     @Override
-    public void onStructureFormed() {
-        super.onStructureFormed();
+    public void formStructure(@NotNull String substructureName) {
+        super.formStructure(substructureName);
 
         if (getLevel() instanceof ServerLevel serverLevel) {
             var owner = getOwnerUUID();
@@ -46,32 +43,41 @@ public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMul
             var uniqueMultiblockMapping = UniqueMultiblockSavedData.getOrCreate(serverLevel);
 
             if (uniqueMultiblockMapping.hasData(owner, multiblockId)) {
-                this.isDuplicate = !uniqueMultiblockMapping.isUnique(owner, multiblockId, getPos());
+                this.isDuplicate = !uniqueMultiblockMapping.isUnique(owner, multiblockId, getBlockPos());
                 if (isDuplicate) recipeLogic.setStatus(RecipeLogic.Status.SUSPEND);
             } else uniqueMultiblockMapping.addMultiblock(owner, getDefinition().getId().toString(),
-                    getPos());
+                    getBlockPos());
 
         }
     }
 
     @Override
-    public void onStructureInvalid() {
-        super.onStructureInvalid();
+    public void invalidateStructure() {
+        super.invalidateStructure();
         if (getLevel() instanceof ServerLevel serverLevel) {
             var owner = getOwnerUUID();
             var uniqueMultiblockMapping = UniqueMultiblockSavedData.getOrCreate(serverLevel);
             uniqueMultiblockMapping.removeMultiblock(owner, getDefinition().getId().toString(),
-                    getPos());
+                    getBlockPos());
         }
     }
 
     @Override
-    public void addDisplayText(@NotNull List<Component> textList) {
-        if (this.isDuplicate) {
-            textList.add(Component.translatable("monilabs.multiblock.duplicate.0")
-                    .setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
-            textList.add(Component.translatable("monilabs.multiblock.duplicate.1")
-                    .setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
-        } else super.addDisplayText(textList);
+    public @NotNull List<IWidget> getWidgetsForDisplay(@NotNull PanelSyncManager syncManager) {
+        BooleanSyncValue isDuplicate = new BooleanSyncValue(this::isDuplicate);
+        List<IWidget> widgets = new ArrayList<>();
+        widgets.add(
+                Text.of(Component.translatable("monilabs.multiblock.duplicate.0")
+                        .setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)))
+                        .asWidget()
+                        .setEnabledIf(w -> isDuplicate.getBoolValue()));
+        widgets.add(
+                Text.of(Component.translatable("monilabs.multiblock.duplicate.1")
+                        .setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)))
+                        .asWidget()
+                        .setEnabledIf(w -> isDuplicate.getBoolValue()));
+
+        widgets.addAll(super.getWidgetsForDisplay(syncManager));
+        return widgets;
     }
 }
