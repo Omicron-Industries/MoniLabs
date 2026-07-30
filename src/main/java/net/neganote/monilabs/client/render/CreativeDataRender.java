@@ -1,6 +1,6 @@
 package net.neganote.monilabs.client.render;
 
-import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
+import com.gregtechceu.gtceu.api.multiblock.util.RelativeDirection;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 
@@ -45,9 +45,9 @@ public class CreativeDataRender extends DynamicRender<CreativeDataMultiMachine, 
         var frontFacing = machine.getFrontFacing();
         var upwardsFacing = machine.getUpwardsFacing();
 
-        Direction front = RelativeDirection.FRONT.getRelative(frontFacing, upwardsFacing, machine.isFlipped());
+        Direction front = RelativeDirection.FRONT.getRelativeFacing(frontFacing, upwardsFacing, machine.isFlipped());
         Direction back = front.getOpposite();
-        Direction upwards = RelativeDirection.UP.getRelative(frontFacing, upwardsFacing, machine.isFlipped());
+        Direction upwards = RelativeDirection.UP.getRelativeFacing(frontFacing, upwardsFacing, machine.isFlipped());
 
         float rayLength = 128.0f;
         Vector3f ray = new Vector3f(upwards.getNormal().getX() * rayLength, upwards.getNormal().getY() * rayLength,
@@ -78,6 +78,6 @@ public class CreativeDataRender extends DynamicRender<CreativeDataMultiMachine, 
 
     @Override
     public AABB getRenderBoundingBox(CreativeDataMultiMachine machine) {
-        return new AABB(machine.getPos()).inflate(getViewDistance(), getViewDistance() + 32, getViewDistance());
+        return new AABB(machine.getBlockPos()).inflate(getViewDistance(), getViewDistance() + 32, getViewDistance());
     }
 }
