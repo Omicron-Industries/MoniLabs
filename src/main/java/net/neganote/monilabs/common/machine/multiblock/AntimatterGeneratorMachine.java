@@ -1,13 +1,13 @@
 package net.neganote.monilabs.common.machine.multiblock;
 
+import com.gregtechceu.gtceu.api.blockentity.BlockEntityCreationInfo;
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.transfer.fluid.IFluidHandlerModifiable;
 
@@ -25,15 +25,10 @@ public class AntimatterGeneratorMachine extends WorkableElectricMultiblockMachin
 
     protected ConditionalSubscriptionHandler generationSubscription;
 
-    public AntimatterGeneratorMachine(IMachineBlockEntity holder, Object... args) {
-        super(holder, args);
+    public AntimatterGeneratorMachine(BlockEntityCreationInfo info) {
+        super(info, new DummyRecipeLogic());
         this.generationSubscription = new ConditionalSubscriptionHandler(this, this::generateEnergyTick,
                 this::isFormed);
-    }
-
-    @Override
-    protected @NotNull RecipeLogic createRecipeLogic(Object @NotNull... args) {
-        return new DummyRecipeLogic(this);
     }
 
     private void generateEnergyTick() {
@@ -74,16 +69,16 @@ public class AntimatterGeneratorMachine extends WorkableElectricMultiblockMachin
     }
 
     @Override
-    public void onStructureFormed() {
-        super.onStructureFormed();
+    public void formStructure(@NotNull String substructureName) {
+        super.formStructure(substructureName);
         generationSubscription.updateSubscription();
         setRenderState(getRenderState().setValue(RecipeLogic.STATUS_PROPERTY,
                 isWorkingEnabled() ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE));
     }
 
     @Override
-    public void onStructureInvalid() {
-        super.onStructureInvalid();
+    public void invalidateStructure(String name) {
+        super.invalidateStructure(name);
         generationSubscription.updateSubscription();
         setRenderState(getRenderState().setValue(RecipeLogic.STATUS_PROPERTY, RecipeLogic.Status.IDLE));
     }

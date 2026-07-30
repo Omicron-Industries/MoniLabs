@@ -1,13 +1,11 @@
 package net.neganote.monilabs.common.machine.trait;
 
-import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class DummyRecipeLogic extends RecipeLogic {
-
-    public DummyRecipeLogic(IRecipeLogicMachine machine) {
-        super(machine);
-    }
 
     @Override
     public void serverTick() {
