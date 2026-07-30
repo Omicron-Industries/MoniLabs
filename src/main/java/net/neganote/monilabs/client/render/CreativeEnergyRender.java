@@ -1,20 +1,16 @@
 package net.neganote.monilabs.client.render;
 
-import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
+import com.gregtechceu.gtceu.api.multiblock.util.RelativeDirection;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
-import com.gregtechceu.gtceu.client.util.ModelUtils;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neganote.monilabs.MoniLabs;
 import net.neganote.monilabs.common.machine.multiblock.CreativeEnergyMultiMachine;
 import net.neganote.monilabs.utils.LaserUtil;
 
@@ -40,14 +36,7 @@ public class CreativeEnergyRender extends DynamicRender<CreativeEnergyMultiMachi
     public static DynamicRenderType<CreativeEnergyMultiMachine, CreativeEnergyRender> TYPE = new DynamicRenderType<>(CreativeEnergyRender.CODEC);
     // spotless:on
 
-    public static final ResourceLocation SPHERE = MoniLabs.id("renderer/sphere");
-    private static BakedModel sphereModel = null;
-
-    private CreativeEnergyRender() {
-        ModelUtils.registerBakeEventListener(true, event -> {
-            sphereModel = event.getModels().get(SPHERE);
-        });
-    }
+    private CreativeEnergyRender() {}
 
     @Override
     public DynamicRenderType<CreativeEnergyMultiMachine, CreativeEnergyRender> getType() {
@@ -60,9 +49,9 @@ public class CreativeEnergyRender extends DynamicRender<CreativeEnergyMultiMachi
         var frontFacing = machine.getFrontFacing();
         var upwardsFacing = machine.getUpwardsFacing();
 
-        Direction front = RelativeDirection.FRONT.getRelative(frontFacing, upwardsFacing, machine.isFlipped());
+        Direction front = RelativeDirection.FRONT.getRelativeFacing(frontFacing, upwardsFacing, machine.isFlipped());
 
-        Direction upwards = RelativeDirection.UP.getRelative(frontFacing, upwardsFacing, machine.isFlipped());
+        Direction upwards = RelativeDirection.UP.getRelativeFacing(frontFacing, upwardsFacing, machine.isFlipped());
 
         poseStack.pushPose();
         float translateX = 0.5f;
@@ -73,7 +62,7 @@ public class CreativeEnergyRender extends DynamicRender<CreativeEnergyMultiMachi
         Vec3i backVec = back.getNormal().multiply(6);
         Vec3i upVec = upwards.getNormal().multiply(13);
 
-        Vec3i bhPos = machine.getPos().relative(back, 6).relative(upwards, 13);
+        Vec3i bhPos = machine.getBlockPos().relative(back, 6).relative(upwards, 13);
         translateX += backVec.getX() + upVec.getX();
         translateY += backVec.getY() + upVec.getY();
         translateZ += backVec.getZ() + upVec.getZ();
@@ -110,6 +99,6 @@ public class CreativeEnergyRender extends DynamicRender<CreativeEnergyMultiMachi
 
     @Override
     public AABB getRenderBoundingBox(CreativeEnergyMultiMachine machine) {
-        return new AABB(machine.getPos()).inflate(getViewDistance(), getViewDistance() + 32, getViewDistance());
+        return new AABB(machine.getBlockPos()).inflate(getViewDistance(), getViewDistance() + 32, getViewDistance());
     }
 }
