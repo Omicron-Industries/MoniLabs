@@ -8,7 +8,6 @@ import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,17 +109,14 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
     }
 
     private static List<NotifiableEnergyContainer> collectContainersInTeamOf(UUID teamMemberUUID) {
-        List<NotifiableEnergyContainer> inTeam = new ArrayList<>();
-        for (NotifiableEnergyContainer container : LOADED_ENERGY_CONTAINERS) {
-            UUID containerOwnerUUID = container.getMachine().getOwnerUUID();
-            if (containerOwnerUUID == null) continue;
-
-            MachineOwner containerOwner = MachineOwner.getOwner(containerOwnerUUID);
-            if (containerOwner != null && containerOwner.isPlayerInTeam(teamMemberUUID)) {
-                inTeam.add(container);
-            }
-        }
-        return inTeam;
+        return LOADED_ENERGY_CONTAINERS.stream()
+                .filter(container -> {
+                    UUID containerOwnerUUID = container.getMachine().getOwnerUUID();
+                    if (containerOwnerUUID == null) return false;
+                    MachineOwner containerOwner = MachineOwner.getOwner(containerOwnerUUID);
+                    return containerOwner != null && containerOwner.isPlayerInTeam(teamMemberUUID);
+                })
+                .toList();
     }
 
     @Override
