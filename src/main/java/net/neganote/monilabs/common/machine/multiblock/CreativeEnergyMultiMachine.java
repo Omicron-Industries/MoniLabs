@@ -2,21 +2,31 @@ package net.neganote.monilabs.common.machine.multiblock;
 
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblockMachine {
 
-    private static final Map<UUID, Integer> ACTIVE_OWNER_COUNTS = new HashMap<>();
+    private static final Set<UUID> ACTIVE_OWNERS = new HashSet<>();
 
     private static final Map<UUID, CacheEntry> PLAYER_CACHE = new HashMap<>();
+
+    private static final Set<NotifiableEnergyContainer> LOADED_ENERGY_CONTAINERS = Collections
+            .newSetFromMap(new IdentityHashMap<>());
 
     private static final int CACHE_LIFETIME_TICKS = 20;
 
@@ -33,8 +43,18 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
                 this::isSubscriptionActive);
     }
 
+    public static void registerEnergyContainer(NotifiableEnergyContainer container) {
+        LOADED_ENERGY_CONTAINERS.add(container);
+    }
+
+    public static void unregisterEnergyContainer(NotifiableEnergyContainer container) {
+        LOADED_ENERGY_CONTAINERS.remove(container);
+    }
+
     public static boolean isCreativeEnergyEnabledFor(UUID playerUUID) {
-        if (ACTIVE_OWNER_COUNTS.isEmpty()) return false;
+        if (ACTIVE_OWNERS.isEmpty()) {
+            return false;
+        }
 
         long now = currentTick();
         CacheEntry cached = PLAYER_CACHE.get(playerUUID);
@@ -43,8 +63,7 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
         }
 
         MachineOwner owner = MachineOwner.getOwner(playerUUID);
-        boolean enabled = owner != null &&
-                ACTIVE_OWNER_COUNTS.keySet().stream().anyMatch(owner::isPlayerInTeam);
+        boolean enabled = owner != null && ACTIVE_OWNERS.stream().anyMatch(owner::isPlayerInTeam);
         PLAYER_CACHE.put(playerUUID, new CacheEntry(enabled, now));
         return enabled;
     }
@@ -55,8 +74,9 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
     }
 
     public static void clearActiveOwners() {
-        ACTIVE_OWNER_COUNTS.clear();
+        ACTIVE_OWNERS.clear();
         PLAYER_CACHE.clear();
+        LOADED_ENERGY_CONTAINERS.clear();
     }
 
     @Override
@@ -76,13 +96,31 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
         }
 
         if (enabled) {
-            ACTIVE_OWNER_COUNTS.merge(ownerUUID, 1, Integer::sum);
+            ACTIVE_OWNERS.add(ownerUUID);
         } else {
-            ACTIVE_OWNER_COUNTS.computeIfPresent(ownerUUID, (uuid, count) -> count > 1 ? count - 1 : null);
+            ACTIVE_OWNERS.remove(ownerUUID);
         }
-
         currentlyActive = enabled;
         PLAYER_CACHE.clear();
+
+        for (NotifiableEnergyContainer container : collectContainersInTeamOf(ownerUUID)) {
+            container.checkOutputSubscription();
+            container.notifyListeners();
+        }
+    }
+
+    private static List<NotifiableEnergyContainer> collectContainersInTeamOf(UUID teamMemberUUID) {
+        List<NotifiableEnergyContainer> inTeam = new ArrayList<>();
+        for (NotifiableEnergyContainer container : LOADED_ENERGY_CONTAINERS) {
+            UUID containerOwnerUUID = container.getMachine().getOwnerUUID();
+            if (containerOwnerUUID == null) continue;
+
+            MachineOwner containerOwner = MachineOwner.getOwner(containerOwnerUUID);
+            if (containerOwner != null && containerOwner.isPlayerInTeam(teamMemberUUID)) {
+                inTeam.add(container);
+            }
+        }
+        return inTeam;
     }
 
     @Override
