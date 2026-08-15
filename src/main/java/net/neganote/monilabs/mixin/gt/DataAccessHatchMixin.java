@@ -1,8 +1,8 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.gt;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.common.machine.multiblock.part.OpticalDataHatchMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.DataAccessHatchMachine;
 
 import net.minecraft.server.level.ServerLevel;
 import net.neganote.monilabs.saveddata.CreativeDataAccessSavedData;
@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = OpticalDataHatchMachine.class, remap = false)
-public class OpticalDataHatchMixin extends MetaMachine {
+@Mixin(value = DataAccessHatchMachine.class, remap = false)
+public class DataAccessHatchMixin extends MetaMachine {
 
-    public OpticalDataHatchMixin(IMachineBlockEntity holder) {
+    public DataAccessHatchMixin(IMachineBlockEntity holder) {
         super(holder);
     }
 

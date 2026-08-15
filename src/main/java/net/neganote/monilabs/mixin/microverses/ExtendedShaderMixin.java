@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.microverses;
 
 import net.irisshaders.iris.gl.IrisRenderSystem;
 import net.irisshaders.iris.gl.program.ProgramSamplers;

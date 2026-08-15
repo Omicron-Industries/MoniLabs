@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.microverses;
 
 import net.irisshaders.iris.Iris;
 import net.minecraft.client.Minecraft;

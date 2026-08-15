@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.gt;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;

@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.microverses;
 
 import net.minecraft.client.renderer.RenderType;
 import net.neganote.monilabs.client.render.BlackHoleRenderer;
