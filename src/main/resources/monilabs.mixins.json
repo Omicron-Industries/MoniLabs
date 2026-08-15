@@ -17,7 +17,8 @@
     "aae.MixinGuiTextShim",
     "aae.MixinPatternDetailsHelperShim",
     "MixinEAERegistryHandler",
-    "aae.MixinProcessingPatternItemShim"
+    "aae.MixinProcessingPatternItemShim",
+    "ae2wtlib.MixinCraftAmountMenuShim"
   ],
   "client":
   [

@@ -7,6 +7,7 @@ import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -27,12 +28,16 @@ public final class MoniMixinPlugin implements IMixinConfigPlugin {
             "net.neganote.monilabs.mixin.aae.MixinPatternDetailsHelperShim",
             "net.neganote.monilabs.mixin.aae.MixinProcessingPatternItemShim");
 
+    private static final Set<String> AE2WTLIB_MIXINS = Set.of(
+            "net.neganote.monilabs.mixin.ae2wtlib.MixinCraftAmountMenuShim");
+
     // --- Targets (internal names)
     private static final String PACKET_INTERNAL = "appeng/core/sync/packets/CraftingJobStatusPacket";
     private static final String PDH_INTERNAL = "appeng/api/crafting/PatternDetailsHelper";
     private static final String PPI_INTERNAL = "appeng/crafting/pattern/ProcessingPatternItem";
     private static final String EPI_INTERNAL = "appeng/crafting/pattern/EncodedPatternItem";
     private static final String GUITEXT_INTERNAL = "appeng/core/localization/GuiText";
+    private static final String CRAFT_AMOUNT_MENU_INTERNAL = "appeng/menu/me/crafting/CraftAmountMenu";
 
     // --- Packet ctors
     private static final String CTOR_AE2 = "(Ljava/util/UUID;Lappeng/api/stacks/AEKey;JJLappeng/core/sync/packets/CraftingJobStatusPacket$Status;)V";
@@ -91,6 +96,9 @@ public final class MoniMixinPlugin implements IMixinConfigPlugin {
         boolean apply = true;
         if (AAE_MIXINS.contains(mixinClassName)) {
             apply = isModLoaded("advanced_ae");
+        }
+        if (AE2WTLIB_MIXINS.contains(mixinClassName)) {
+            apply = isModLoaded("ae2wtlib");
         }
         boolean isDatagen = System.getProperty("sun.java.command").contains("dataRun");
         if (mixinClassName.toLowerCase().contains("render") && isDatagen) {
@@ -151,6 +159,11 @@ public final class MoniMixinPlugin implements IMixinConfigPlugin {
                     ensureGuiTextWithEnumConstantExists(targetClass);
                     logPatch(targetClassName, "GuiText.With enum constant",
                             hasField(targetClass, "With", GUITEXT_ENUM_DESC));
+                }
+                case CRAFT_AMOUNT_MENU_INTERNAL -> {
+                    ensureCraftAmountMenuLegacyIntOpenExists(targetClass);
+                    logPatch(targetClassName, "CraftAmountMenu.open(..., int) -> open(..., long) bridge",
+                            findCraftAmountOpen(targetClass, Type.INT) != null);
                 }
                 default -> {}
             }
@@ -276,6 +289,67 @@ public final class MoniMixinPlugin implements IMixinConfigPlugin {
         m.maxStack = 2;
         m.maxLocals = 1;
         cn.methods.add(m);
+    }
+
+    // =========================
+    // PATCH: CraftAmountMenu.open(..., int) compatibility bridge for AE2WTLib
+    // =========================
+    private static void ensureCraftAmountMenuLegacyIntOpenExists(ClassNode cn) {
+        if (findCraftAmountOpen(cn, Type.INT) != null) return;
+
+        MethodNode longOpen = findCraftAmountOpen(cn, Type.LONG);
+        if (longOpen == null) return;
+
+        Type[] longArgs = Type.getArgumentTypes(longOpen.desc);
+        Type[] bridgeArgs = longArgs.clone();
+        bridgeArgs[3] = Type.INT_TYPE;
+
+        String bridgeDesc = Type.getMethodDescriptor(Type.VOID_TYPE, bridgeArgs);
+
+        MethodNode bridge = new MethodNode(
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+                "open",
+                bridgeDesc,
+                null,
+                null);
+
+        InsnList insn = bridge.instructions;
+        insn.add(new VarInsnNode(Opcodes.ALOAD, 0)); // ServerPlayer
+        insn.add(new VarInsnNode(Opcodes.ALOAD, 1)); // MenuLocator / MenuHostLocator
+        insn.add(new VarInsnNode(Opcodes.ALOAD, 2)); // AEKey
+        insn.add(new VarInsnNode(Opcodes.ILOAD, 3)); // int initialAmount
+        insn.add(new InsnNode(Opcodes.I2L));
+        insn.add(new MethodInsnNode(
+                Opcodes.INVOKESTATIC,
+                CRAFT_AMOUNT_MENU_INTERNAL,
+                "open",
+                longOpen.desc,
+                false));
+        insn.add(new InsnNode(Opcodes.RETURN));
+
+        bridge.maxStack = 5;
+        bridge.maxLocals = 4;
+        cn.methods.add(bridge);
+    }
+
+    private static MethodNode findCraftAmountOpen(ClassNode cn, int amountSort) {
+        for (MethodNode m : cn.methods) {
+            if (!"open".equals(m.name) || (m.access & Opcodes.ACC_STATIC) == 0) continue;
+            if (Type.getReturnType(m.desc).getSort() != Type.VOID) continue;
+
+            Type[] args = Type.getArgumentTypes(m.desc);
+            if (args.length != 4) continue;
+
+            if (!"Lnet/minecraft/server/level/ServerPlayer;".equals(args[0].getDescriptor())) continue;
+            if (args[1].getSort() != Type.OBJECT ||
+                    !args[1].getInternalName().startsWith("appeng/menu/locator/"))
+                continue;
+            if (!"Lappeng/api/stacks/AEKey;".equals(args[2].getDescriptor())) continue;
+            if (args[3].getSort() != amountSort) continue;
+
+            return m;
+        }
+        return null;
     }
 
     // =========================
