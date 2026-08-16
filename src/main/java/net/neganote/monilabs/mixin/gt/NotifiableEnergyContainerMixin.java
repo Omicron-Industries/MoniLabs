@@ -13,6 +13,7 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.server.level.ServerLevel;
 import net.neganote.monilabs.common.machine.multiblock.CreativeEnergyMultiMachine;
+import net.neganote.monilabs.common.machine.multiblock.UniqueWorkableElectricMultiblockMachine;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,9 +56,14 @@ public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait
         if (machine.getLevel() instanceof ServerLevel) {
             outputSubs = machine.subscribeServerTick(this.outputSubs, this::serverTick);
             UUID uuid = machine.getOwnerUUID();
-            if (uuid != null && CreativeEnergyMultiMachine.isCreativeEnergyEnabledFor(uuid)) {
-                // return 1 less so active transformers won't turn off
-                cir.setReturnValue(getEnergyCapacity() - 1);
+            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
+            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
+                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
+                    return;
+                if (cemm.isProviding) {
+                    // return 1 less so active transformers won't turn off
+                    cir.setReturnValue(getEnergyCapacity() - 1);
+                }
             }
         }
     }
@@ -70,8 +76,13 @@ public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait
         if (machine.getLevel() instanceof ServerLevel) {
             outputSubs = machine.subscribeServerTick(this.outputSubs, this::serverTick);
             UUID uuid = machine.getOwnerUUID();
-            if (uuid != null && CreativeEnergyMultiMachine.isCreativeEnergyEnabledFor(uuid)) {
-                cir.setReturnValue(energyToAdd);
+            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
+            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
+                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
+                    return;
+                if (cemm.isProviding) {
+                    cir.setReturnValue(energyToAdd);
+                }
             }
         }
     }
