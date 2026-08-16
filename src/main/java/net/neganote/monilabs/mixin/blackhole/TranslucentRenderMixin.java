@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin.microverses;
+package net.neganote.monilabs.mixin.blackhole;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;

@@ -22,11 +22,11 @@
   ],
   "client":
   [
-    "microverses.TranslucentRenderMixin",
-    "microverses.ShaderChunkRendererMixin",
-    "microverses.DefaultChunkRendererMixin",
-    "microverses.ShaderLoaderMixin",
-    "microverses.GameRendererMixin",
+    "blackhole.TranslucentRenderMixin",
+    "blackhole.ShaderChunkRendererMixin",
+    "blackhole.DefaultChunkRendererMixin",
+    "blackhole.ShaderLoaderMixin",
+    "blackhole.GameRendererMixin",
     "microverses.ProgramMixin",
     "accessor.TerrainRenderPassAccessor",
     "accessor.ShaderChunkRendererAccessor",

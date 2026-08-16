@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin.microverses;
+package net.neganote.monilabs.mixin.blackhole;
 
 import net.minecraft.resources.ResourceLocation;
 import net.neganote.monilabs.client.render.BlackHoleRendererHelpers;
