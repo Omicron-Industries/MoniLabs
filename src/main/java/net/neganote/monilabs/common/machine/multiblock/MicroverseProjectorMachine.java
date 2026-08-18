@@ -23,11 +23,9 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neganote.monilabs.common.item.MoniItems;
 import net.neganote.monilabs.common.machine.trait.NotifiableMicroverseContainer;
 import net.neganote.monilabs.config.MoniConfig;
 
@@ -49,8 +47,6 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             MicroverseProjectorMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
-
-    private final Item quantumFluxItem;
 
     @Getter
     @Persisted
@@ -82,7 +78,8 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
     public static final int MICROVERSE_MAX_INTEGRITY = 100_000;
     public static final int FLUX_REPAIR_AMOUNT = 1000;
 
-    private final GTRecipe quantumFluxRecipe;
+    private final static GTRecipe quantumFluxRecipe = GTRecipeBuilder.ofRaw().inputItems(MoniItems.QUANTUM_FLUX)
+            .buildRawRecipe();
 
     @Persisted
     private final NotifiableMicroverseContainer microverseContainer;
@@ -92,9 +89,6 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
         this.projectorTier = tier;
         this.microverseHandler = new ConditionalSubscriptionHandler(this, this::microverseTick, this::isFormed);
         updateMicroverse(0, false);
-        this.quantumFluxItem = ForgeRegistries.ITEMS.getValue(ResourceLocation.bySeparator("kubejs:quantum_flux", ':'));
-        assert this.quantumFluxItem != null;
-        this.quantumFluxRecipe = GTRecipeBuilder.ofRaw().inputItems(this.quantumFluxItem).buildRawRecipe();
         this.microverseContainer = new NotifiableMicroverseContainer(this);
     }
 
@@ -219,7 +213,7 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
 
             if (fluxToConsume > 0) {
                 List<Ingredient> fluxList = ObjectArrayList
-                        .of(SizedIngredient.create(new ItemStack(quantumFluxItem, fluxToConsume)));
+                        .of(SizedIngredient.create(new ItemStack(MoniItems.QUANTUM_FLUX.get(), fluxToConsume)));
 
                 var scaledRecipe = quantumFluxRecipe.copy(new ContentModifier(fluxToConsume, 0.0));
 
