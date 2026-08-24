@@ -105,7 +105,7 @@ public class MoniRecipeTypes {
             .setSound(MoniSounds.MICROVERSE)
             .addDataInfo(data -> "")
             .addDataInfo((data) -> I18n.get("emi_info.monilabs.projector_info",
-                    data.getByte("projector_tier")))
+                    data.getByte("projector_tier"), I18n.get("projector.monilabs.tier." + data.getByte("projector_tier"))))
             .addDataInfo(data -> {
                 String info = "";
                 if (data.contains("updated_microverse")) {
