@@ -117,7 +117,7 @@ public class MoniLangHandler {
         provider.add("monilabs.tooltip.microverses.space_gradient", "Microverses");
         provider.add("monilabs.tooltip.microversal.space_gradient", "Microversal");
 
-        provider.add("emi_info.monilabs.projector_info", "Projector tier: %d");
+        provider.add("emi_info.monilabs.projector_info", "Projector tier: %d (%s)");
         provider.add("emi_info.monilabs.required_microverse", "Required type: %s");
         provider.add("emi_info.monilabs.new_microverse", "New type: %s");
         provider.add("emi_info.monilabs.integrity_drained", "Integrity drained: %.2f");
@@ -189,6 +189,11 @@ public class MoniLangHandler {
         provider.add("microverse.monilabs.type.hostile", "Hostile");
         provider.add("microverse.monilabs.type.shattered", "Shattered");
         provider.add("microverse.monilabs.type.corrupted", "Corrupted");
+
+        provider.add("projector.monilabs.tier.1", "Basic");
+        provider.add("projector.monilabs.tier.2", "Advanced");
+        provider.add("projector.monilabs.tier.3", "Elite");
+        provider.add("projector.monilabs.tier.4", "Hyperbolic");
 
         provider.add("microverse.monilabs.current_microverse", "Microverse type: %s");
         provider.add("microverse.monilabs.integrity", "Microverse integrity: %.2f%%");
