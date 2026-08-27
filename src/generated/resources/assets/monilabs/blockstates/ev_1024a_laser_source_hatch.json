@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "monilabs:block/machine/ev_1024a_laser_source_hatch",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "monilabs:block/machine/ev_1024a_laser_source_hatch",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "monilabs:block/machine/ev_1024a_laser_source_hatch"
+    },
+    "facing=south": {
+      "model": "monilabs:block/machine/ev_1024a_laser_source_hatch",
+      "y": 180
+    },
+    "facing=up": {
+      "gtceu:z": 180,
+      "model": "monilabs:block/machine/ev_1024a_laser_source_hatch",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "monilabs:block/machine/ev_1024a_laser_source_hatch",
+      "y": 270
+    }
+  }
+}

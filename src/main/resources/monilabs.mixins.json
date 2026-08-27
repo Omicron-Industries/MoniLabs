@@ -6,32 +6,37 @@
   "plugin": "net.neganote.monilabs.mixin.MoniMixinPlugin",
   "refmap": "mixins.monilabs.refmap.json",
   "mixins": [
-    "gt.DataAccessHatchMixin",
     "KubeJSPluginsMixin",
-    "gt.NotifiableEnergyContainerMixin",
-    "gt.OpticalDataHatchMixin",
-    "gt.PowerSubstationMachineMixin",
     "aae.MixinCraftingJobStatusPacketCtorShim",
     "aae.MixinCraftingServiceAAE",
     "aae.MixinEncodedPatternItemShim",
     "aae.MixinGuiTextShim",
     "aae.MixinPatternDetailsHelperShim",
-    "eae.MixinEAERegistryHandler",
     "aae.MixinProcessingPatternItemShim",
-    "ae2wtlib.MixinCraftAmountMenuShim"
+    "ae2wtlib.MixinCraftAmountMenuShim",
+    "eae.MixinEAERegistryHandler",
+    "gt.DataAccessHatchMixin",
+    "gt.IMaterialPartItemMixin",
+    "gt.LargeCombustionEngineMachineMixin",
+    "gt.LargeTurbineMachineMixin",
+    "gt.NotifiableEnergyContainerMixin",
+    "gt.OpticalDataHatchMixin",
+    "gt.PowerSubstationMachineMixin",
+    "gt.RotorHolderMachineMixin",
+    "gt.TurbineRotorBehaviourMixin"
   ],
-  "client":
-  [
-    "blackhole.TranslucentRenderMixin",
-    "blackhole.ShaderChunkRendererMixin",
-    "blackhole.DefaultChunkRendererMixin",
-    "blackhole.ShaderLoaderMixin",
-    "blackhole.GameRendererMixin",
-    "microverses.ProgramMixin",
-    "accessor.TerrainRenderPassAccessor",
+  "client": [
     "accessor.ShaderChunkRendererAccessor",
+    "accessor.TerrainRenderPassAccessor",
+    "blackhole.DefaultChunkRendererMixin",
+    "blackhole.GameRendererMixin",
+    "blackhole.ShaderChunkRendererMixin",
+    "blackhole.ShaderLoaderMixin",
+    "blackhole.TranslucentRenderMixin",
+    "gt.IDurabilityBarMixin",
+    "microverses.ExtendedShaderMixin",
     "microverses.IrisVertexFormatsMixin",
-    "microverses.ExtendedShaderMixin"
+    "microverses.ProgramMixin"
   ],
   "injectors": {
     "defaultRequire": 1
