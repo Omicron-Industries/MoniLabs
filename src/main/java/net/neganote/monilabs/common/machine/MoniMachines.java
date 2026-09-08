@@ -12,7 +12,6 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
@@ -711,7 +710,7 @@ public class MoniMachines {
             .register();
 
     public static MultiblockMachineDefinition LARGE_LAPOTRONIC_GENERATOR = REGISTRATE
-            .multiblock("large_lapotronic_generator", WorkableElectricMultiblockMachine::new) // Change this
+            .multiblock("large_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
             .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
             .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
@@ -732,7 +731,7 @@ public class MoniMachines {
             .register();
 
     public static MultiblockMachineDefinition EXTREME_LAPOTRONIC_GENERATOR = REGISTRATE
-            .multiblock("extreme_lapotronic_generator", WorkableElectricMultiblockMachine::new) // Change this
+            .multiblock("extreme_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
             .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
             .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
