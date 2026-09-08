@@ -13,6 +13,7 @@ public class MoniElements {
     public static final Element TranscendentalMatrix = GTElements.createAndRegister(6, 32, -1, null,
             "Transcendental Matrix", "ᛝ",
             false);
+    public static final Element Mana = GTElements.createAndRegister(-1, 1, -1, null, "Mana", "ᛗ", false);
 
     public static void init() {}
 }

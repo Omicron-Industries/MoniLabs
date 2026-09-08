@@ -9,4 +9,5 @@ public class MoniMaterialIconSets {
     public static MaterialIconSet Eltz = new MaterialIconSet("eltz", MaterialIconSet.SHINY);
     public static MaterialIconSet TranscendentalMatrix = new MaterialIconSet("transcendental_matrix",
             MaterialIconSet.SHINY);
+    public static MaterialIconSet Mana = new MaterialIconSet("mana", MaterialIconSet.SHINY);
 }

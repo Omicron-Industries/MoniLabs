@@ -94,6 +94,11 @@ public class MoniItems {
             })))
             .register();
 
+    public static final ItemEntry<Item> QUANTUM_FLUX = REGISTRATE
+            .item("quantum_flux", Item::new)
+            .lang("Quantum Flux")
+            .register();
+
     // Copied from GTItems
     public static <T extends IComponentItem> NonNullConsumer<T> attach(IItemComponent... components) {
         return item -> item.attachComponents(components);
