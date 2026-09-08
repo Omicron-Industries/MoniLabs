@@ -4,6 +4,8 @@ import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.RotationState;
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -705,6 +707,48 @@ public class MoniMachines {
                                     List.of(RelativeDirection.BACK, RelativeDirection.FRONT, RelativeDirection.LEFT,
                                             RelativeDirection.RIGHT)))))
             .tooltipBuilder(SCULK_VAT_TOOLTIPS)
+            .register();
+
+    public static MultiblockMachineDefinition LARGE_LAPOTRONIC_GENERATOR = REGISTRATE
+            .multiblock("large_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
+            .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
+            .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("#B#", "BCB", "BCB", "BCB", "#B#")
+                    .aisle("BBB", "BDB", "BDB", "BDB", "BBB")
+                    .aisle("#B#", "BEB", "B@B", "BEB", "#B#")
+                    .where("@", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("#", Predicates.any())
+                    .where("B", Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
+                    .where("C", Predicates.heatingCoils())
+                    .where("D", Predicates.blocks(GTBlocks.CASING_TITANIUM_GEARBOX.get()))
+                    .where("E", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.GarnetRed)))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_stable_titanium"),
+                    GTCEu.id("block/multiblock/generator/large_combustion_engine"))
+            .register();
+
+    public static MultiblockMachineDefinition EXTREME_LAPOTRONIC_GENERATOR = REGISTRATE
+            .multiblock("extreme_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
+            .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
+            .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("#B#", "BCB", "BCB", "BCB", "#B#")
+                    .aisle("BBB", "BDB", "BDB", "BDB", "BBB")
+                    .aisle("#B#", "BEB", "B@B", "BEB", "#B#")
+                    .where("@", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("#", Predicates.any())
+                    .where("B", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
+                    .where("C", Predicates.heatingCoils())
+                    .where("D", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
+                    .where("E", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.GarnetRed)))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_robust_tungstensteel"),
+                    GTCEu.id("block/multiblock/generator/large_combustion_engine"))
             .register();
 
     // MAX stuff
