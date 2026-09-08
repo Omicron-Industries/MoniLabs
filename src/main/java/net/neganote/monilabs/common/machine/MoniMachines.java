@@ -710,7 +710,8 @@ public class MoniMachines {
             .register();
 
     public static MultiblockMachineDefinition LARGE_LAPOTRONIC_GENERATOR = REGISTRATE
-            .multiblock("large_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
+            .multiblock("large_lapotronic_generator",
+                    holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
             .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
             .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
@@ -731,7 +732,8 @@ public class MoniMachines {
             .register();
 
     public static MultiblockMachineDefinition EXTREME_LAPOTRONIC_GENERATOR = REGISTRATE
-            .multiblock("extreme_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
+            .multiblock("extreme_lapotronic_generator",
+                    holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
             .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
             .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier) // Here too
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
