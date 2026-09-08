@@ -723,7 +723,7 @@ public class MoniMachines {
                     .where("#", Predicates.any())
                     .where("B", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
                             .or(Predicates.autoAbilities(definition.getRecipeTypes())))
-                    .where("C", Predicates.blocks(GTBlocks.COIL_KANTHAL.get()))
+                    .where("C", Predicates.heatingCoils())
                     .where("D", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
                     .where("E", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.GarnetRed)))
                     .build())
