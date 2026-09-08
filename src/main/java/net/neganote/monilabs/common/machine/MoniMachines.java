@@ -711,7 +711,7 @@ public class MoniMachines {
             .register();
 
     public static MultiblockMachineDefinition LAPOTRONIC_GENERATOR = REGISTRATE
-            .multiblock("large_lapotronic_generator", WorkableElectricMultiblockMachine::new) //Change this
+            .multiblock("large_lapotronic_generator", WorkableElectricMultiblockMachine::new) // Change this
             .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
             .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
