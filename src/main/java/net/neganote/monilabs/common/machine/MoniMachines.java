@@ -710,8 +710,29 @@ public class MoniMachines {
             .tooltipBuilder(SCULK_VAT_TOOLTIPS)
             .register();
 
-    public static MultiblockMachineDefinition LAPOTRONIC_GENERATOR = REGISTRATE
+    public static MultiblockMachineDefinition LARGE_LAPOTRONIC_GENERATOR = REGISTRATE
             .multiblock("large_lapotronic_generator", WorkableElectricMultiblockMachine::new) // Change this
+            .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
+            .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("#B#", "BCB", "BCB", "BCB", "#B#")
+                    .aisle("BBB", "BDB", "BDB", "BDB", "BBB")
+                    .aisle("#B#", "BEB", "B@B", "BEB", "#B#")
+                    .where("@", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("#", Predicates.any())
+                    .where("B", Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
+                    .where("C", Predicates.heatingCoils())
+                    .where("D", Predicates.blocks(GTBlocks.CASING_TITANIUM_GEARBOX.get()))
+                    .where("E", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.GarnetRed)))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_stable_titanium"),
+                    GTCEu.id("block/multiblock/generator/large_combustion_engine"))
+            .register();
+
+    public static MultiblockMachineDefinition EXTREME_LAPOTRONIC_GENERATOR = REGISTRATE
+            .multiblock("extreme_lapotronic_generator", WorkableElectricMultiblockMachine::new) // Change this
             .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
             .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
