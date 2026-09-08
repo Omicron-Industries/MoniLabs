@@ -711,8 +711,8 @@ public class MoniMachines {
 
     public static MultiblockMachineDefinition LARGE_LAPOTRONIC_GENERATOR = REGISTRATE
             .multiblock("large_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
-            .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
-            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
+            .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
+            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("#B#", "BCB", "BCB", "BCB", "#B#")
@@ -732,8 +732,8 @@ public class MoniMachines {
 
     public static MultiblockMachineDefinition EXTREME_LAPOTRONIC_GENERATOR = REGISTRATE
             .multiblock("extreme_lapotronic_generator", holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
-            .recipeTypes(MoniRecipeTypes.SCULK_VAT_RECIPES) // Ofc change this later
-            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT) // Here too
+            .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
+            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier) // Here too
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("#B#", "BCB", "BCB", "BCB", "#B#")

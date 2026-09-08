@@ -176,5 +176,12 @@ public class MoniRecipeTypes {
             })
             .addDataInfo((data) -> "");
 
+    public static GTRecipeType LAPOTRONIC_GENERATOR_RECIPES = GTRecipeTypes
+            .register("lapotronic", GTRecipeTypes.GENERATOR)
+            .setEUIO(IO.OUT)
+            .setMaxIOSize(1, 0, 0, 0)
+            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .setSound(GTSoundEntries.COMBUSTION);
+
     public static void init() {}
 }
