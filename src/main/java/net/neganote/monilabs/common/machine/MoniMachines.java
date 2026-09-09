@@ -2,14 +2,13 @@ package net.neganote.monilabs.common.machine;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MachineDefinition;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
+import com.gregtechceu.gtceu.api.machine.*;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
@@ -17,6 +16,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.client.util.TooltipHelper;
@@ -46,6 +46,7 @@ import net.neganote.monilabs.gtbridge.MoniRecipeTypes;
 import net.neganote.monilabs.recipe.MoniRecipeModifiers;
 
 import appeng.core.definitions.AEBlocks;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -57,7 +58,7 @@ import static com.gregtechceu.gtceu.api.GTValues.*;
 import static com.gregtechceu.gtceu.api.capability.recipe.IO.IN;
 import static com.gregtechceu.gtceu.api.capability.recipe.IO.OUT;
 import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties.IS_FORMED;
-import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.registerTieredMachines;
+import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.*;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.createWorkableTieredHullMachineModel;
 import static net.neganote.monilabs.MoniLabs.REGISTRATE;
 
@@ -187,9 +188,7 @@ public class MoniMachines {
                     .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
                     .model(createWorkableTieredHullMachineModel(
                             MoniLabs.id("block/machines/parallel_hatch_mk" + (tier - 4)))
-                            .andThen((ctx, prov, model) -> {
-                                model.addReplaceableTextures("bottom", "top", "side");
-                            }))
+                            .andThen((ctx, prov, model) -> model.addReplaceableTextures("bottom", "top", "side")))
                     .tooltips(Component.translatable("gtceu.machine.parallel_hatch_mk" + tier + ".tooltip"),
                             Component.translatable("gtceu.part_sharing.disabled"))
                     .register(),
@@ -805,6 +804,30 @@ public class MoniMachines {
             4096, PartAbility.INPUT_LASER, EV);
     public static final MachineDefinition EV_LASER_OUTPUT_HATCH_4096 = registerLaserHatch(REGISTRATE, OUT,
             4096, PartAbility.OUTPUT_LASER, EV);
+
+    public static final MachineDefinition[] LAPOTRONIC_GENERATORS = registerSimpleMonilabsGenerator(REGISTRATE,
+            "lapotronic", MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES, i -> i, 1.0f, MV, HV);
+
+    // Copied and modified from GTMachineUtils
+    public static MachineDefinition[] registerSimpleMonilabsGenerator(GTRegistrate registrate, String name,
+                                                                      GTRecipeType recipeType,
+                                                                      Int2IntFunction tankScalingFunction,
+                                                                      float hazardStrengthPerOperation, int... tiers) {
+        return registerTieredMachines(registrate, name,
+                (holder, tier) -> new SimpleGeneratorMachine(holder, tier, hazardStrengthPerOperation * (float) tier,
+                        tankScalingFunction),
+                (tier, builder) -> builder
+                        .langValue("%s %s Generator %s".formatted(GTValues.VLVH[tier],
+                                FormattingUtil.toEnglishName(name), GTValues.VLVT[tier]))
+                        .editableUI(SimpleGeneratorMachine.EDITABLE_UI_CREATOR.apply(GTCEu.id(name),
+                                recipeType))
+                        .rotationState(RotationState.ALL).recipeType(recipeType)
+                        .recipeModifier(SimpleGeneratorMachine::recipeModifier, true)
+                        .addOutputLimit(ItemRecipeCapability.CAP, 0).addOutputLimit(FluidRecipeCapability.CAP, 0)
+                        .simpleGeneratorModel(MoniLabs.id("block/generators/" + name))
+                        .register(),
+                tiers);
+    }
 
     public static void init() {}
 }

@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "monilabs:block/machine/hv_lapotronic",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "monilabs:block/machine/hv_lapotronic",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "monilabs:block/machine/hv_lapotronic"
+    },
+    "facing=south": {
+      "model": "monilabs:block/machine/hv_lapotronic",
+      "y": 180
+    },
+    "facing=up": {
+      "gtceu:z": 180,
+      "model": "monilabs:block/machine/hv_lapotronic",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "monilabs:block/machine/hv_lapotronic",
+      "y": 270
+    }
+  }
+}
