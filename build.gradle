@@ -249,6 +249,9 @@ dependencies {
     modCompileOnly("maven.modrinth:advancedae:${aae_version}")
 
     modCompileOnly("curse.maven:ex-pattern-provider-892005:8291632")
+
+    modCompileOnly("maven.modrinth:easy-anvils:v8.0.2-1.20.1-Forge")
+
 }
 
 tasks.named('processResources', ProcessResources).configure {

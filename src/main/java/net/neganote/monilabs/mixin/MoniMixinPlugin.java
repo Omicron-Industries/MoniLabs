@@ -79,6 +79,12 @@ public final class MoniMixinPlugin implements IMixinConfigPlugin {
         if (AE2WTLIB_MIXINS.contains(mixinClassName)) {
             apply = isModLoaded("ae2wtlib");
         }
+        if (mixinClassName.startsWith("net.neganote.monilabs.mixin.enderio.")) {
+            apply = isModLoaded("enderio");
+        }
+        if (mixinClassName.startsWith("net.neganote.monilabs.mixin.easyanvils.")) {
+            apply = isModLoaded("easyanvils");
+        }
         boolean isDatagen = System.getProperty("sun.java.command").contains("dataRun");
         if (mixinClassName.toLowerCase().contains("render") && isDatagen) {
             apply = false;
