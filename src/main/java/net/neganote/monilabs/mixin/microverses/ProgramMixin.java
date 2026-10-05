@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.microverses;
 
 import net.neganote.monilabs.MoniLabs;
 import net.neganote.monilabs.client.render.ShaderAnalysisResult;

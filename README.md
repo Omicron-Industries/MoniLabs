@@ -8,4 +8,4 @@ The LGPL3 license is available under LICENSE, and a copy of the MIT license unde
 # Credits
 Most code is by NegaNote with some help by Withers and Raine.
 
-The unique multiblock code is taken from Cosmic Frontiers' packmod, CosmicCore, with Caitlynn's permission.
+The unique multiblock code is taken from Cosmic Frontiers' packmod, CosmicCore, with Ghostipedia's permission.

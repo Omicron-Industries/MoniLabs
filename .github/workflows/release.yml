@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload Forge Releases (Curse|Modrinth|Github)
         id: forge_release
-        uses: Kir-Antipov/mc-publish@v3.3.0
+        uses: Kir-Antipov/mc-publish@v3.3.1
         with:
           curseforge-id: ${{ vars.CURSE_ID }}
           curseforge-token: ${{ secrets.CURSE_TOKEN }}
@@ -67,3 +67,4 @@ jobs:
           changelog-file: changelog.md
           loaders: forge
           game-versions: 1.20.1
+          environment: client | server

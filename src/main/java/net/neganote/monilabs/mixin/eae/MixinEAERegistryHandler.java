@@ -1,4 +1,4 @@
-package net.neganote.monilabs.mixin;
+package net.neganote.monilabs.mixin.eae;
 
 import net.minecraft.world.level.ItemLike;
 

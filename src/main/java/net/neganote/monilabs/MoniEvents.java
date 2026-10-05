@@ -6,6 +6,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.neganote.monilabs.commands.PackSwitcherCommands;
 import net.neganote.monilabs.common.machine.multiblock.CreativeEnergyMultiMachine;
+import net.neganote.monilabs.common.machine.multiblock.UniqueWorkableElectricMultiblockMachine;
 
 @Mod.EventBusSubscriber(modid = MoniLabs.MOD_ID)
 public class MoniEvents {
@@ -18,6 +19,7 @@ public class MoniEvents {
 
     @SubscribeEvent
     public static void onServerStopping(ServerStoppingEvent event) {
-        CreativeEnergyMultiMachine.clearActiveOwners();
+        UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.clear();
+        CreativeEnergyMultiMachine.LOADED_ENERGY_CONTAINERS.clear();
     }
 }
