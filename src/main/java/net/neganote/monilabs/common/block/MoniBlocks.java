@@ -1,5 +1,6 @@
 package net.neganote.monilabs.common.block;
 
+import com.gregtechceu.gtceu.api.block.ActiveBlock;
 import com.gregtechceu.gtceu.api.block.property.GTBlockStateProperties;
 
 import net.minecraft.client.renderer.RenderType;
@@ -77,6 +78,21 @@ public class MoniBlocks {
                 .register();
     }
 
+    private static @NotNull BlockEntry<ActiveBlock> registerActiveBlock(String name, String id, String texture,
+                                                                        NonNullBiFunction<Block, Item.Properties, ? extends BlockItem> func) {
+        return REGISTRATE
+                .block(id, ActiveBlock::new)
+                .initialProperties(() -> Blocks.IRON_BLOCK)
+                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false)
+                        .lightLevel((b) -> b.getValue(GTBlockStateProperties.ACTIVE) ? 15 : 0))
+                .blockstate(MoniModels.createActiveBlockModel(MoniLabs.id("block/" + texture)))
+                .tag(RecipeTags.MINEABLE_WITH_WRENCH, BlockTags.MINEABLE_WITH_PICKAXE)
+                .lang(name)
+                .item(func)
+                .build()
+                .register();
+    }
+
     private static @NotNull BlockEntry<Block> registerSimpleBeacon(String name, String id, String texture,
                                                                    NonNullBiFunction<Block, Item.Properties, ? extends BlockItem> func) {
         return REGISTRATE
@@ -137,4 +153,12 @@ public class MoniBlocks {
             .register();
     public static BlockEntry<Block> ELTZ_CASING = registerSimpleBlock("Eltz Casing", "eltz_casing",
             "casing/eltz", BlockItem::new);
+
+    public static BlockEntry<ActiveBlock> ENERGETIC_TITANIUM_CASING = registerActiveBlock("Energetic Titanium Casing",
+            "energetic_titanium_casing",
+            "casing/energetic_titanium", BlockItem::new);
+
+    public static BlockEntry<ActiveBlock> LAPOTRONIC_TUNGSTENSTEEL_CASING = registerActiveBlock(
+            "Lapotronic Tungstensteel Casing", "lapotronic_tungstensteel_casing",
+            "casing/lapotronic_tungstensteel", BlockItem::new);
 }
