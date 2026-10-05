@@ -6,8 +6,6 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.data.RotationState;
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.machine.*;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
@@ -719,16 +717,18 @@ public class MoniMachines {
             .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
             .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("#B#", "BCB", "BCB", "BCB", "#B#")
-                    .aisle("BBB", "BDB", "BDB", "BDB", "BBB")
-                    .aisle("#B#", "BEB", "B@B", "BEB", "#B#")
+                    .aisle("EBE", "FCF", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "F@F", "EBE")
                     .where("@", Predicates.controller(Predicates.blocks(definition.get())))
-                    .where("#", Predicates.any())
                     .where("B", Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
-                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
-                    .where("C", Predicates.heatingCoils())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes(), false, false, true, true, true,
+                                    true)))
+                    .where("C", Predicates.abilities(PartAbility.OUTPUT_ENERGY))
                     .where("D", Predicates.blocks(GTBlocks.CASING_TITANIUM_GEARBOX.get()))
-                    .where("E", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.GarnetRed)))
+                    .where("E", Predicates.blocks(MoniBlocks.ENERGETIC_TITANIUM_CASING.get()))
+                    .where("F", Predicates.frames(GTMaterials.Titanium))
                     .build())
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_stable_titanium"),
                     GTCEu.id("block/multiblock/generator/large_combustion_engine"))
@@ -741,16 +741,18 @@ public class MoniMachines {
             .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier) // Here too
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
             .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("#B#", "BCB", "BCB", "BCB", "#B#")
-                    .aisle("BBB", "BDB", "BDB", "BDB", "BBB")
-                    .aisle("#B#", "BEB", "B@B", "BEB", "#B#")
+                    .aisle("EBE", "FCF", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "F@F", "EBE")
                     .where("@", Predicates.controller(Predicates.blocks(definition.get())))
-                    .where("#", Predicates.any())
                     .where("B", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
-                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
-                    .where("C", Predicates.heatingCoils())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes(), false, false, true, true, true,
+                                    true)))
+                    .where("C", Predicates.abilities(PartAbility.OUTPUT_ENERGY))
                     .where("D", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
-                    .where("E", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.GarnetRed)))
+                    .where("E", Predicates.blocks(MoniBlocks.LAPOTRONIC_TUNGSTENSTEEL_CASING.get()))
+                    .where("F", Predicates.frames(GTMaterials.TungstenSteel))
                     .build())
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_robust_tungstensteel"),
                     GTCEu.id("block/multiblock/generator/large_combustion_engine"))
