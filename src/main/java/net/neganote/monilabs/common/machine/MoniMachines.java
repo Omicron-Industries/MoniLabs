@@ -2,12 +2,11 @@ package net.neganote.monilabs.common.machine;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.data.RotationState;
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MachineDefinition;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
+import com.gregtechceu.gtceu.api.machine.*;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
@@ -15,6 +14,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.client.util.TooltipHelper;
@@ -44,6 +44,7 @@ import net.neganote.monilabs.gtbridge.MoniRecipeTypes;
 import net.neganote.monilabs.recipe.MoniRecipeModifiers;
 
 import appeng.core.definitions.AEBlocks;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -55,7 +56,7 @@ import static com.gregtechceu.gtceu.api.GTValues.*;
 import static com.gregtechceu.gtceu.api.capability.recipe.IO.IN;
 import static com.gregtechceu.gtceu.api.capability.recipe.IO.OUT;
 import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties.IS_FORMED;
-import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.registerTieredMachines;
+import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.*;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.createWorkableTieredHullMachineModel;
 import static net.neganote.monilabs.MoniLabs.REGISTRATE;
 
@@ -709,6 +710,54 @@ public class MoniMachines {
             .tooltipBuilder(SCULK_VAT_TOOLTIPS)
             .register();
 
+    public static MultiblockMachineDefinition LARGE_LAPOTRONIC_GENERATOR = REGISTRATE
+            .multiblock("large_lapotronic_generator",
+                    holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
+            .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
+            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
+            .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("EBE", "FCF", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "F@F", "EBE")
+                    .where("@", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("B", Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes(), false, false, true, true, true,
+                                    true)))
+                    .where("C", Predicates.abilities(PartAbility.OUTPUT_ENERGY))
+                    .where("D", Predicates.blocks(GTBlocks.CASING_TITANIUM_GEARBOX.get()))
+                    .where("E", Predicates.blocks(MoniBlocks.ENERGETIC_TITANIUM_CASING.get()))
+                    .where("F", Predicates.frames(GTMaterials.Titanium))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_stable_titanium"),
+                    GTCEu.id("block/multiblock/generator/large_combustion_engine"))
+            .register();
+
+    public static MultiblockMachineDefinition EXTREME_LAPOTRONIC_GENERATOR = REGISTRATE
+            .multiblock("extreme_lapotronic_generator",
+                    holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
+            .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
+            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier) // Here too
+            .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("EBE", "FCF", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "EDE", "EBE")
+                    .aisle("EBE", "F@F", "EBE")
+                    .where("@", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("B", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes(), false, false, true, true, true,
+                                    true)))
+                    .where("C", Predicates.abilities(PartAbility.OUTPUT_ENERGY))
+                    .where("D", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
+                    .where("E", Predicates.blocks(MoniBlocks.LAPOTRONIC_TUNGSTENSTEEL_CASING.get()))
+                    .where("F", Predicates.frames(GTMaterials.TungstenSteel))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_robust_tungstensteel"),
+                    GTCEu.id("block/multiblock/generator/large_combustion_engine"))
+            .register();
+
     // MAX stuff
     public static MachineDefinition registerLaserHatch(GTRegistrate registrate, IO io, int amperage,
                                                        PartAbility ability, int tier) {
@@ -761,6 +810,30 @@ public class MoniMachines {
             4096, PartAbility.INPUT_LASER, EV);
     public static final MachineDefinition EV_LASER_OUTPUT_HATCH_4096 = registerLaserHatch(REGISTRATE, OUT,
             4096, PartAbility.OUTPUT_LASER, EV);
+
+    public static final MachineDefinition[] LAPOTRONIC_GENERATORS = registerSimpleMonilabsGenerator(REGISTRATE,
+            "lapotronic", MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES, i -> i, 1.0f, MV, HV);
+
+    // Copied and modified from GTMachineUtils
+    public static MachineDefinition[] registerSimpleMonilabsGenerator(GTRegistrate registrate, String name,
+                                                                      GTRecipeType recipeType,
+                                                                      Int2IntFunction tankScalingFunction,
+                                                                      float hazardStrengthPerOperation, int... tiers) {
+        return registerTieredMachines(registrate, name,
+                (holder, tier) -> new SimpleGeneratorMachine(holder, tier, hazardStrengthPerOperation * (float) tier,
+                        tankScalingFunction),
+                (tier, builder) -> builder
+                        .langValue("%s %s Generator %s".formatted(GTValues.VLVH[tier],
+                                FormattingUtil.toEnglishName(name), GTValues.VLVT[tier]))
+                        .editableUI(SimpleGeneratorMachine.EDITABLE_UI_CREATOR.apply(GTCEu.id(name),
+                                recipeType))
+                        .rotationState(RotationState.ALL).recipeType(recipeType)
+                        .recipeModifier(SimpleGeneratorMachine::recipeModifier, true)
+                        .addOutputLimit(ItemRecipeCapability.CAP, 0).addOutputLimit(FluidRecipeCapability.CAP, 0)
+                        .simpleGeneratorModel(MoniLabs.id("block/generators/" + name))
+                        .register(),
+                tiers);
+    }
 
     public static void init() {}
 }

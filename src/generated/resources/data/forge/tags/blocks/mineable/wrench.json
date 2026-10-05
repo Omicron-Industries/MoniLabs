@@ -9,6 +9,8 @@
     "monilabs:bioalloy_casing",
     "monilabs:bioalloy_fusion_casing",
     "monilabs:prism_glass",
-    "monilabs:eltz_casing"
+    "monilabs:eltz_casing",
+    "monilabs:energetic_titanium_casing",
+    "monilabs:lapotronic_tungstensteel_casing"
   ]
 }

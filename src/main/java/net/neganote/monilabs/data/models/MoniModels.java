@@ -53,6 +53,35 @@ public class MoniModels {
         };
     }
 
+    public static NonNullBiConsumer<DataGenContext<Block, ActiveBlock>, RegistrateBlockstateProvider> createActiveBlockModel(ResourceLocation texturePath) {
+        return (ctx, prov) -> {
+            ActiveBlock block = ctx.getEntry();
+
+            ModelFile inactive = prov
+                    .models()
+                    .cubeAll(ctx.getName(), texturePath);
+
+            VariantBlockStateBuilder builder = prov
+                    .getVariantBuilder(block)
+                    .partialState()
+                    .with(GTBlockStateProperties.ACTIVE, false)
+                    .modelForState()
+                    .modelFile(inactive)
+                    .addModel();
+
+            ModelFile active = prov
+                    .models()
+                    .cubeAll(ctx.getName(), texturePath.withSuffix("_active"));
+
+            builder
+                    .partialState()
+                    .with(GTBlockStateProperties.ACTIVE, true)
+                    .modelForState()
+                    .modelFile(active)
+                    .addModel();
+        };
+    }
+
     public static NonNullBiConsumer<DataGenContext<Block, PrismaticActiveBlock>, RegistrateBlockstateProvider> createPrismaticActiveUpsideDownBeaconModel(ResourceLocation texturePath) {
         return (ctx, prov) -> {
             ActiveBlock block = ctx.getEntry();

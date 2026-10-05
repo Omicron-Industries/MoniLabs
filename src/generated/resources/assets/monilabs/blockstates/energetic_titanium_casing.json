@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "monilabs:block/energetic_titanium_casing"
+    },
+    "active=true": {
+      "model": "monilabs:block/energetic_titanium_casing"
+    }
+  }
+}
