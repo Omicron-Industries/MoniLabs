@@ -1,3 +1,4 @@
-# Moni Labs 0.22.1
+# Moni Labs 0.23.0
 
-* Allow microverse projectors to be in any rotation
+* Add the Lapotronic Generator
+* Move primal mana to coremod
