@@ -724,7 +724,9 @@ public class MoniMachines {
                     .where("@", Predicates.controller(Predicates.blocks(definition.get())))
                     .where("B", Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
                             .or(Predicates.autoAbilities(definition.getRecipeTypes(), false, false, true, true, true,
-                                    true)))
+                                    true))
+                            .or(Predicates.autoAbilities(true, false, false))
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS)))
                     .where("C", Predicates.abilities(PartAbility.OUTPUT_ENERGY))
                     .where("D", Predicates.blocks(GTBlocks.CASING_TITANIUM_GEARBOX.get()))
                     .where("E", Predicates.blocks(MoniBlocks.ENERGETIC_TITANIUM_CASING.get()))
@@ -748,7 +750,9 @@ public class MoniMachines {
                     .where("@", Predicates.controller(Predicates.blocks(definition.get())))
                     .where("B", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
                             .or(Predicates.autoAbilities(definition.getRecipeTypes(), false, false, true, true, true,
-                                    true)))
+                                    true))
+                            .or(Predicates.autoAbilities(true, false, false))
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS)))
                     .where("C", Predicates.abilities(PartAbility.OUTPUT_ENERGY))
                     .where("D", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
                     .where("E", Predicates.blocks(MoniBlocks.LAPOTRONIC_TUNGSTENSTEEL_CASING.get()))

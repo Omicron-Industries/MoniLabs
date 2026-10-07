@@ -1,4 +1,3 @@
-# Moni Labs 0.23.0
+# Moni Labs 0.23.1
 
-* Add the Lapotronic Generator
-* Move primal mana to coremod
+* Allow lapotronic generator multis to have fluid import and maintenance hatches
