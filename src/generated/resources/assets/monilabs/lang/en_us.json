@@ -111,7 +111,6 @@
   "gui.advanced_type_sensor.invert.enabled.1": "",
   "gui.advanced_type_sensor.invert.enabled.2": "Toggle to invert the redstone logic",
   "gui.advanced_type_sensor.invert.enabled.3": "By default, redstone is emitted when the type chosen matches the active microverse type in the Microverse Projector.",
-  "gui.ae2.With": "With",
   "gui.monilabs.chroma.color.display": "Color: ",
   "gui.monilabs.chroma.color.unknown": "Unknown",
   "gui.monilabs.microverse_stability.max": "Max: ",

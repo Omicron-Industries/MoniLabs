@@ -205,8 +205,6 @@ public class MoniLangHandler {
         provider.add("config.jade.plugin_monilabs.sculk_vat_xp_info", "Sculk Vat XP Buffer Info");
         provider.add("config.jade.plugin_monilabs.omnic_synth_info", "Omnic Synthesizer Info");
 
-        provider.add("gui.ae2.With", "With");
-
         multiLang(provider, "gtceu.placeholder_info.prismacColor",
                 "Returns the current color of the Prismatic Crucible.",
                 "Usage:",
