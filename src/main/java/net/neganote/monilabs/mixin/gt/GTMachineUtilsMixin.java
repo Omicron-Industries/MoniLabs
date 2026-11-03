@@ -11,7 +11,8 @@ import org.spongepowered.asm.mixin.injection.Slice;
 @Mixin(value = GTMachineUtils.class, remap = false)
 public class GTMachineUtilsMixin {
 
-    // While sloppa made this mixin, I know what it's doing. It's using the @Slice to find the exact location of the constant value 4L
+    // While sloppa made this mixin, I know what it's doing. It's using the @Slice to find the exact location of the
+    // constant value 4L
     // to replace it with 3L, so I believe I could replicate it on my own if needed without further AI assistance.
     @ModifyConstant(method = "registerLargeCombustionEngine(Lcom/gregtechceu/gtceu/api/registry/registrate/GTRegistrate;Ljava/lang/String;ILjava/util/function/Supplier;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;)Lcom/gregtechceu/gtceu/api/machine/MultiblockMachineDefinition;",
                     slice = @Slice(from = @At(value = "CONSTANT",
