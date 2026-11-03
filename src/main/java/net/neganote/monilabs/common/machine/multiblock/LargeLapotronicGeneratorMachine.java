@@ -11,13 +11,13 @@ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.ingredient.EnergyStack;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
-import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
-import com.gregtechceu.gtceu.common.machine.multiblock.generator.LargeCombustionEngineMachine;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.neganote.monilabs.common.data.materials.MoniMaterials;
@@ -33,7 +33,12 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
     private final int tier;
 
     @DescSynced
+    @Persisted
     private boolean isManaBoosted = false;
+    @DescSynced
+    @Persisted
+    private boolean hasQuantumFlux = true;
+    @Persisted
     private int runningTimer = 0;
 
     private static final ItemStack QFLUX_STACK = new ItemStack(MoniItems.QUANTUM_FLUX, 1);
@@ -71,13 +76,15 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
         // check lubricant
 
         if (runningTimer % (20 * 60 * 5) == 0) {
-            // insufficient lubricant
+            // insufficient qflux
             if (!RecipeHelper.handleRecipeIO(this, getQuantumFluxRecipe(), IO.IN, this.recipeLogic.getChanceCaches())
                     .isSuccess()) {
                 recipeLogic.interruptRecipe();
+                hasQuantumFlux = false;
                 return false;
             }
         }
+        hasQuantumFlux = true;
         // check boost fluid
         if (isBoostAllowed() && runningTimer % (20 * 5) == 0) {
             var boosterRecipe = getManaRecipe();
@@ -94,22 +101,31 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
 
     public static ModifierFunction recipeModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
         if (!(machine instanceof LargeLapotronicGeneratorMachine lapotronicMachine)) {
-            return RecipeModifier.nullWrongType(LargeCombustionEngineMachine.class, machine);
+            return RecipeModifier.nullWrongType(LargeLapotronicGeneratorMachine.class, machine);
         }
+
         EnergyStack EUt = recipe.getOutputEUt();
-        // has lubricant
-        if (!EUt.isEmpty() &&
-                RecipeHelper.matchRecipe(lapotronicMachine, lapotronicMachine.getQuantumFluxRecipe()).isSuccess()) {
-            int maxParallel = (int) (lapotronicMachine.getOverclockVoltage() / EUt.getTotalEU()); // get maximum
-                                                                                                  // parallel
-            int actualParallel = ParallelLogic.getParallelAmount(lapotronicMachine, recipe, maxParallel);
-            double eutMultiplier = actualParallel * lapotronicMachine.getProductionBoost();
+        var recipeVoltage = EUt.voltage();
+
+        if (!lapotronicMachine.hasQuantumFlux) {
+            return ModifierFunction
+                    .cancel(Component.translatable("info.monilabs.lapotronic_generator.no_qflux_available"));
+        }
+
+        lapotronicMachine.isManaBoosted = lapotronicMachine.isBoostAllowed() &&
+                RecipeHelper.matchRecipe(lapotronicMachine, lapotronicMachine.getManaRecipe()).isSuccess();
+
+        if (!EUt.isEmpty()) {
+            double inputMultiplier = lapotronicMachine.isManaBoosted ? 2.0 : 1.0;
+            double eutMultiplier = ((double) lapotronicMachine.getOverclockVoltage() / recipeVoltage) *
+                    lapotronicMachine.getProductionBoost();
+            double durationMultiplier = recipeVoltage / ((double) GTValues.V[lapotronicMachine.tier]);
 
             return ModifierFunction.builder()
-                    .inputModifier(ContentModifier.multiplier(actualParallel))
-                    .outputModifier(ContentModifier.multiplier(actualParallel))
                     .eutMultiplier(eutMultiplier)
-                    .parallels(actualParallel)
+                    .durationMultiplier(durationMultiplier)
+                    .inputModifier(ContentModifier.multiplier(inputMultiplier))
+                    .parallels(lapotronicMachine.isManaBoosted ? 2 : 1)
                     .build();
         }
         return ModifierFunction.NULL;

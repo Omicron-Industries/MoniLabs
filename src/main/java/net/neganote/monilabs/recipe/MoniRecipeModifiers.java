@@ -2,6 +2,7 @@ package net.neganote.monilabs.recipe;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.SimpleGeneratorMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
@@ -190,6 +191,20 @@ public class MoniRecipeModifiers {
                 .modifyAllContents(ContentModifier.multiplier(parallels))
                 .eutMultiplier(eutMultiplier)
                 .parallels(parallels)
+                .build();
+    }
+
+    public static RecipeModifier SIMPLE_LAPOGEN_OC = MoniRecipeModifiers::simpleLapogenOC;
+
+    public static ModifierFunction simpleLapogenOC(MetaMachine machine, GTRecipe recipe) {
+        if (!(machine instanceof SimpleGeneratorMachine simpleGenerator)) {
+            return RecipeModifier.nullWrongType(SimpleGeneratorMachine.class, machine);
+        }
+        double eutMultiplier = ((double) simpleGenerator.getOverclockVoltage() / recipe.getOutputEUt().voltage());
+        double durationMultiplier = recipe.getOutputEUt().voltage() / ((double) simpleGenerator.getOverclockVoltage());
+        return ModifierFunction.builder()
+                .eutMultiplier(eutMultiplier)
+                .durationMultiplier(durationMultiplier)
                 .build();
     }
 }

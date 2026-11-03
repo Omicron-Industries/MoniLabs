@@ -66,6 +66,8 @@ public class MoniLangHandler {
 
         provider.add("monilabs.tooltip.prismatic.rainbow", "the rainbow");
 
+        provider.add("info.monilabs.lapotronic_generator.no_qflux_available", "Insufficient Quantum Flux");
+
         multiLang(provider, "monilabs.tooltip.prismatic",
                 "§7Uses the power of %s to transform items!",
                 "§7Run recipes to §fswitch§7 the §fcolor§7.",

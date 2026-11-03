@@ -149,6 +149,7 @@
   "gui.monilabs.xp_sensor.mode_toggle.enabled.1": "",
   "gui.monilabs.xp_sensor.mode_toggle.enabled.2": "Toggle to select the mode of Sculk Experience Signal.",
   "gui.monilabs.xp_sensor.mode_toggle.enabled.3": "In this mode, redstone is emitted when the amount of XP in the Sculk Vat matches the percentages",
+  "info.monilabs.lapotronic_generator.no_qflux_available": "Insufficient Quantum Flux",
   "item.monilabs.max_conveyor_module": "MAX Conveyor Module",
   "item.monilabs.max_electric_motor": "MAX Electric Motor",
   "item.monilabs.max_electric_piston": "MAX Electric Piston",

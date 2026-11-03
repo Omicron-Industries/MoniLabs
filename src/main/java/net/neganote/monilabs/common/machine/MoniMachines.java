@@ -729,6 +729,7 @@ public class MoniMachines {
                     holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
             .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
             .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
+            .generator(true)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("EBE", "FCF", "EBE")
@@ -758,7 +759,8 @@ public class MoniMachines {
             .multiblock("extreme_lapotronic_generator",
                     holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
             .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
-            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier) // Here too
+            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
+            .generator(true)
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("EBE", "FCF", "EBE")
@@ -854,7 +856,7 @@ public class MoniMachines {
                         .editableUI(SimpleGeneratorMachine.EDITABLE_UI_CREATOR.apply(GTCEu.id(name),
                                 recipeType))
                         .rotationState(RotationState.ALL).recipeType(recipeType)
-                        .recipeModifier(SimpleGeneratorMachine::recipeModifier, true)
+                        .recipeModifier(MoniRecipeModifiers.SIMPLE_LAPOGEN_OC, true)
                         .addOutputLimit(ItemRecipeCapability.CAP, 0).addOutputLimit(FluidRecipeCapability.CAP, 0)
                         .simpleGeneratorModel(MoniLabs.id("block/generators/" + name))
                         .tooltips(workableTiered(tier, V[tier], V[tier] * 64L, recipeType, 0, false))
