@@ -16,6 +16,7 @@ flat in float vIntegrity;
 flat in uint vRenderEffect;
 
 const int WEB_SHELLS = 3;
+const float PI = 3.1415926;
 const float TWO_PI = 6.28318530718;
 const uint RENDER_EFFECT_SHATTERED = 1u;
 const uint RENDER_EFFECT_CORRUPTED = 2u;
@@ -48,10 +49,10 @@ float hash01(uint v) {
 }
 
 // Returns the hash in [0;1] range
-vec3 hash01_vec3(vec3 p) {
-    uvec3 q = uvec3(ivec3(p));
-    uint h = pcg_hash(q.x ^ pcg_hash(q.y ^ pcg_hash(q.z)));
-    return vec3(hash01(h), hash01(h ^ 0x9E3779B9u), hash01(h ^ 0x85EBCA6Bu));
+vec4 hash01_vec4(vec4 p) {
+    uvec4 q = uvec4(ivec4(p));
+    uint h = pcg_hash(q.x ^ pcg_hash(q.y ^ pcg_hash(q.z ^ pcg_hash(q.w))));
+    return vec4(hash01(h), hash01(h ^ 0x9E3779B9u), hash01(h ^ 0x85EBCA6Bu), hash01(h ^ 0x2E751C38u));
 }
 
 vec4 sample_cosmic_web(vec3 viewRay, float webScale, float filamentWidth, float clusterSize) {
@@ -141,16 +142,18 @@ vec3 calc_web_shell_ray(vec4 shard, float layer) {
 }
 
 float calc_web_shell_density(vec4 shard, float shell) {
+    float shattered = step(0.1, float(vRenderEffect & RENDER_EFFECT_SHATTERED));
+    float integrity = mix(vIntegrity, 1., shattered);
     float shellLayer = shell * StarLayers / float(WEB_SHELLS);
     vec3 rayDir = calc_web_shell_ray(shard, shellLayer);
-    float filamentWidth = 0.20 * pow(vIntegrity, 2.0);
-    float clusterWidth = 0.20 * pow(vIntegrity, 2.0);
+    float filamentWidth = 0.20 * pow(integrity, 2.0);
+    float clusterWidth = 0.20 * pow(integrity, 2.0);
     vec4 webData = sample_cosmic_web(rayDir, 0.5, filamentWidth, clusterWidth);
 
     float shimmer = calc_shimmer_effect(webData.z);
     float webMask = max(webData.x, webData.y) * shimmer;
 
-    float voidBand = mix(filamentWidth, 1.5, pow(vIntegrity, 2.0));
+    float voidBand = mix(filamentWidth, 1.5, pow(integrity, 2.0));
     float voidMask = 1.0 - smoothstep(voidBand * 0.7, voidBand, webData.w);
     float voidDensity = 0.2 * voidMask;
     float density = min(voidDensity + webMask, 1.0);
@@ -162,68 +165,116 @@ float calc_web_shell_density(vec4 shard, float shell) {
 // The MIT License
 // Copyright (c) 2023 Inigo Quilez
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// https://www.youtube.com/c/InigoQuilez
-// https://iquilezles.org
 // An adapted version of shard noise
-float shard_noise(vec3 point, float sharpness) {
-    vec3 cell = floor(point);
-    vec3 cellLocal = fract(point);
+float shard_noise_v4(vec4 point, float sharpness, float factor) {
+    vec4 cell = floor(point);
+    vec4 cellLocal = fract(point);
 
     float valueSum = 0.0;
     float weightSum = 0.0;
-    for (int z = -1; z <= 1; z++) {
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-                vec3 cellOffset = vec3(x, y, z);
-                vec3 neighborCell = cell + cellOffset;
-                vec3 delta = cellLocal - (cellOffset + hash01_vec3(neighborCell));
+    for (int w = -1; w <= 1; w++) {
+        for (int z = -1; z <= 1; z++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int x = -1; x <= 1; x++) {
+                    vec4 cellOffset = vec4(x, y, z, w);
+                    vec4 neighborCell = cell + cellOffset;
+                    vec4 delta = cellLocal - (cellOffset + hash01_vec4(neighborCell));
 
-                float weight = exp2(-TWO_PI * dot(delta, delta));
-                // tanh deconstruction and optimization by @Xor
-                float slope = sharpness * dot(delta, hash01_vec3(neighborCell + vec3(11.0, 31.0, 47.0)) - 0.5);
-                // Changed by @WithersChat from slope * inversesqrt(1.0 + slope * slope) for sharper lines
-                float denominator = 1.0 + slope;
-                denominator = denominator < 0.0 ? min(denominator, -0.001) : max(denominator, 0.001);
-                valueSum += weight * slope / denominator;
-                weightSum += weight;
+                    float weight = exp2(-TWO_PI * factor * dot(delta, delta));
+                    // tanh deconstruction and optimization by @Xor
+                    float slope = sharpness * dot(delta, hash01_vec4(neighborCell + vec4(11.0, 31.0, 47.0, 21.0)) - 0.5);
+                    // Changed by @WithersChat from slope * inversesqrt(1.0 + slope * slope) for sharper lines
+                    float denominator = 1.0 + slope;
+                    denominator = denominator < 0.0 ? min(denominator, -0.001) : max(denominator, 0.001);
+                    valueSum += weight * slope / denominator;
+                    weightSum += weight;
+                }
             }
         }
     }
-    return (valueSum / weightSum) * 0.5 + 0.5;
+    return (valueSum / weightSum) * 0.5;
 }
 
-vec3 shard_offset(vec3 point, vec3 axis) {
+float shard_noise(vec3 point, float sharpness, float factor) {
+    return shard_noise_v4(vec4(point, 0.), sharpness, factor);
+}
+
+float triplanar_blend_noise(vec3 viewRay, float biasScale, float textureScale, float sharpness, float factor) {
+    vec3 v1 = vec3(0., 3.1574, 4.8511) * biasScale + vec3(0., viewRay.yz) * textureScale;
+    vec3 v2 = vec3(7.9221, 0., 6.3466) * biasScale + vec3(viewRay.x, 0., viewRay.z) * textureScale;
+    vec3 v3 = vec3(1.3213, 9.7544, 0.) * biasScale + vec3(viewRay.xy, 0.) * textureScale;
+
+    float sample1 = shard_noise_v4(vec4(v1, GameTime * 12.), sharpness, factor);
+    float sample2 = shard_noise_v4(vec4(v2, GameTime * 12.), sharpness, factor);
+    float sample3 = shard_noise_v4(vec4(v3, GameTime * 12.), sharpness, factor);
+
+    vec3 weight = pow(abs(viewRay), vec3(5.0));
+    // Normalize to make the sum 1
+    weight /= (weight.x + weight.y + weight.z);
+    return sample1 * weight.x + sample2 * weight.y + sample3 * weight.z;
+}
+
+vec3 shard_offset() {
+    vec3 axis = normalize(vViewRay);
+    float time = GameTime * 5.0;
+    vec3 layerViewRay = calc_layer_view_ray(normalize(vViewRay), 15) * 0.12 * vAnchor.w;
     vec3 na = vec3(
-        shard_noise(point, 4.0),
-        shard_noise(point + vec3(50.0), 4.0),
-        shard_noise(point + vec3(-50.0, 25.0, 75.0), 4.0)
-    );
-    na = clamp(floor(na * 4.0) / 4.0 - 0.5, -0.5, 0.5) * 0.3;
+        shard_noise_v4(vec4(layerViewRay, 0. + time), 4.0, 1.),
+        shard_noise_v4(vec4(layerViewRay, 50. + time), 4.0, 1.),
+        shard_noise_v4(vec4(layerViewRay, 100. + time), 4.0, 1.)
+    ) + 0.5;
+    na = clamp(floor(na * 2.0) / 2.0 - 0.5, -0.5, 0.5) * 0.3;
     return na - axis * dot(na, axis);
 }
 
-float shard_mask(vec3 point) {
-    float nb = shard_noise(point + vec3(100.0), 4.0);
-    nb = nb > 1.0 ? sqrt(nb) : nb;
-    nb = clamp((nb + 0.5) / 3.0, 0.0, 1.0);
-    return nb;
+float shard_mask() {
+
+    float factor = 1. + 2.2 * min(4. * vIntegrity * vIntegrity, 1.);
+
+    float integrity = max(2. * vIntegrity - 1., 0.);
+    integrity = sin(integrity * 3.141592 * 0.5);
+
+    float outF = 0.;
+    for (int i = 1; i < 5; i++) {
+        float layer = float(4 * i - 2);
+        vec3 layerViewRay = calc_layer_view_ray(normalize(vViewRay), layer);
+
+        //float T = GameTime * 0.1 + float(i);
+
+        //vec4 axis = mix(hash01_vec4(vec4(floor(T))), hash01_vec4(vec4(ceil(T))), fract(T));
+        //float angle = T * 5. * 60.;
+        //layerViewRay = rotate_around_axis(layerViewRay, normalize(axis.xyz), angle);
+
+        vec4 nomnom = vec4(layerViewRay * sqrt(layer + 5.), 400. * layer + GameTime * 12.);
+        float nb = shard_noise_v4(nomnom, 4., factor);
+        //float nb = triplanar_blend_noise(layerViewRay, layer, textureScale, 4., 3.2);
+
+        float sgn = sign(nb);
+        nb = nb * sgn;
+        nb = (nb > 1. ? sqrt(nb) : nb * nb);
+        nb = nb * sgn;
+
+        nb = clamp((nb + (integrity * 0.7))/3., -2. + 2. * integrity, 1.);
+        outF += nb;
+    }
+    return clamp(outF, 0., 1.);
 }
 
 vec4 calc_shard_data() {
     // Use the point on the projector face as an input to shard noise,
     // this way it does not change with camera movement. We do not have a real normal here on non-iris path,
     // so use view ray derivatives to approximate it (a better path ahead would be to add normal to the vertex format)
-    vec3 facePoint = (vViewRay - vAnchor.xyz) / vAnchor.w;
-    vec3 faceNormal = normalize(cross(dFdx(vViewRay), dFdy(vViewRay)));
-    float time = GameTime * 120.0;
-    vec3 offsetPoint = facePoint * 0.6 + faceNormal * time * 0.125;
-    vec3 maskPoint = facePoint * 1.8 + faceNormal * time * 0.2;
-    return vec4(shard_offset(offsetPoint, normalize(vViewRay)), shard_mask(maskPoint));
+    return vec4(shard_offset(), shard_mask());
 }
 
+// Calculates final multiplier for shattered 'verse
 float calc_shard_shading(vec4 shard) {
     float shattered = step(0.1, float(vRenderEffect & RENDER_EFFECT_SHATTERED));
-    return mix(1.0, shard.w, shattered);
+    float integrity = min(2. * vIntegrity, 1.);
+    float localIntegrity = integrity > 0. ?
+        shard.w * 1./integrity - 1./integrity + sqrt(integrity):
+        0.;
+    return mix(1.0, localIntegrity, shattered);
 }
 
 vec3 calc_star_layer_weight(float density, vec4 shard, float layer, float speedModifier) {
@@ -244,9 +295,10 @@ vec3 calc_base_color(vec4 shard) {
 
     float luma = dot(baseColor, vec3(0.2126, 0.7152, 0.0722)); // sRGB luminance weights
     vec3 desaturated = mix(vec3(luma), baseColor, smoothstep(0.3, 1.0, vIntegrity));
-
     float dimming = mix(0.05, 1.0, pow(vIntegrity, 2.0));
-    return desaturated * dimming;
+
+    float shattered = step(0.1, float(vRenderEffect & RENDER_EFFECT_SHATTERED));
+    return mix(desaturated * dimming, baseColor, shattered);
 }
 
 void unpackPalette(uvec4 packedColors, out vec4[4] palette) {

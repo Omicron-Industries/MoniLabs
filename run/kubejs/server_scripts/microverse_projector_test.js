@@ -8,11 +8,12 @@ ServerEvents.recipes(event => {
 
     event.recipes.gtceu.microverse("using_normal_microverse")
         .itemInputs("minecraft:gold_ingot")
-        .itemOutputs("minecraft:gold_ingot", "minecraft:diamond")
         .requiredMicroverse(1)
+        .damageRate(200) // 200/tick of 100k max integrity
         .addData("projector_tier", 1)
         .EUt(GTValues.VHA[GTValues.IV])
-        .duration(50) // 100s, like a T1 mission
+        .addData("duration", 600) // read by the projector to scale damage; 0 if missing
+        .duration(600)
 
     event.recipes.gtceu.microverse("normal_to_hostile_microverse")
         .itemInputs("minecraft:rotten_flesh")
