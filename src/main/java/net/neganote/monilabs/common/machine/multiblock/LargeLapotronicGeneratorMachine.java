@@ -12,16 +12,15 @@ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.ingredient.EnergyStack;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.neganote.monilabs.common.data.materials.MoniMaterials;
-import net.neganote.monilabs.common.item.MoniItems;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +34,10 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
     @DescSynced
     @Persisted
     private boolean isManaBoosted = false;
-    @DescSynced
-    @Persisted
-    private boolean hasQuantumFlux = true;
     @Persisted
     private int runningTimer = 0;
 
-    private static final ItemStack QFLUX_STACK = new ItemStack(MoniItems.QUANTUM_FLUX, 1);
+    private static final FluidStack REDSTONE_STACK = GTMaterials.Redstone.getFluid(1);
     private static final FluidStack NORMAL_MANA_STACK = MoniMaterials.Mana.getFluid(2);
     private static final FluidStack EXTREME_MANA_STACK = MoniMaterials.Mana.getFluid(5);
 
@@ -50,8 +46,8 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
         this.tier = tier;
     }
 
-    protected GTRecipe getQuantumFluxRecipe() {
-        return GTRecipeBuilder.ofRaw().inputItems(QFLUX_STACK).buildRawRecipe();
+    protected GTRecipe getLiquidRedstoneRecipe() {
+        return GTRecipeBuilder.ofRaw().inputFluids(REDSTONE_STACK).buildRawRecipe();
     }
 
     protected GTRecipe getManaRecipe() {
@@ -73,30 +69,37 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
     @Override
     public boolean onWorking() {
         boolean value = super.onWorking();
-        // check lubricant
 
-        if (runningTimer % (20 * 60 * 5) == 0) {
-            // insufficient qflux
-            if (!RecipeHelper.handleRecipeIO(this, getQuantumFluxRecipe(), IO.IN, this.recipeLogic.getChanceCaches())
+        // check liquid redstone (1mb/3s)
+        if (runningTimer % (20 * 3) == 0) {
+            // insufficient liquid redstone
+            if (!RecipeHelper.handleRecipeIO(this, getLiquidRedstoneRecipe(), IO.IN, this.recipeLogic.getChanceCaches())
                     .isSuccess()) {
                 recipeLogic.interruptRecipe();
-                hasQuantumFlux = false;
                 return false;
             }
         }
-        hasQuantumFlux = true;
         // check boost fluid
-        if (isBoostAllowed() && runningTimer % (20 * 5) == 0) {
+        if (this.isManaBoosted && runningTimer % (20 * 5) == 0) {
             var boosterRecipe = getManaRecipe();
             this.isManaBoosted = RecipeHelper.matchRecipe(this, boosterRecipe).isSuccess() &&
                     RecipeHelper.handleRecipeIO(this, boosterRecipe, IO.IN, this.recipeLogic.getChanceCaches())
                             .isSuccess();
+            if (!this.isManaBoosted) {
+                recipeLogic.interruptRecipe();
+                return false;
+            }
         }
 
         runningTimer++;
         if (runningTimer > 72000) runningTimer %= 72000; // reset once every hour of running
 
         return value;
+    }
+
+    public boolean hasLiquidRedstone() {
+        return RecipeHelper.matchRecipe(this, this.getLiquidRedstoneRecipe())
+                .isSuccess();
     }
 
     public static ModifierFunction recipeModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
@@ -107,15 +110,14 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
         EnergyStack EUt = recipe.getOutputEUt();
         var recipeVoltage = EUt.voltage();
 
-        if (!lapotronicMachine.hasQuantumFlux) {
+        if (!lapotronicMachine.hasLiquidRedstone()) {
             return ModifierFunction
-                    .cancel(Component.translatable("info.monilabs.lapotronic_generator.no_qflux_available"));
+                    .cancel(Component.translatable("info.monilabs.lapotronic_generator.no_redstone_available"));
         }
 
-        lapotronicMachine.isManaBoosted = lapotronicMachine.isBoostAllowed() &&
-                RecipeHelper.matchRecipe(lapotronicMachine, lapotronicMachine.getManaRecipe()).isSuccess();
-
         if (!EUt.isEmpty()) {
+            lapotronicMachine.isManaBoosted = lapotronicMachine.isBoostAllowed() &&
+                    RecipeHelper.matchRecipe(lapotronicMachine, lapotronicMachine.getManaRecipe()).isSuccess();
             double inputMultiplier = lapotronicMachine.isManaBoosted ? 2.0 : 1.0;
             double eutMultiplier = ((double) lapotronicMachine.getOverclockVoltage() / recipeVoltage) *
                     lapotronicMachine.getProductionBoost();
