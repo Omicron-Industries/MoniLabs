@@ -254,7 +254,7 @@ float shard_mask() {
         nb = (nb > 1. ? sqrt(nb) : nb * nb);
         nb = nb * sgn;
 
-        nb = clamp((nb + (integrity * 0.7))/3., -2. + 2. * integrity, 1.);
+        nb = clamp((nb + integrity)/3., -2. + 2. * integrity, 1.);
         outF += nb;
     }
     return clamp(outF, 0., 1.);
