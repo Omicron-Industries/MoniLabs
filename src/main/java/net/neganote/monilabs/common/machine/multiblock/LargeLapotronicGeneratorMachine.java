@@ -36,9 +36,6 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
     @DescSynced
     @Persisted
     private boolean isManaBoosted = false;
-    @DescSynced
-    @Persisted
-    private boolean hasLiquidRedstone = true;
     @Persisted
     private int runningTimer = 0;
 
@@ -81,11 +78,9 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
             if (!RecipeHelper.handleRecipeIO(this, getLiquidRedstoneRecipe(), IO.IN, this.recipeLogic.getChanceCaches())
                     .isSuccess()) {
                 recipeLogic.interruptRecipe();
-                hasLiquidRedstone = false;
                 return false;
             }
         }
-        hasLiquidRedstone = true;
         // check boost fluid
         if (isBoostAllowed() && runningTimer % (20 * 5) == 0) {
             var boosterRecipe = getManaRecipe();
@@ -100,6 +95,11 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
         return value;
     }
 
+    public boolean hasLiquidRedstone() {
+        return RecipeHelper.matchRecipe(this, this.getLiquidRedstoneRecipe())
+                .isSuccess();
+    }
+
     public static ModifierFunction recipeModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
         if (!(machine instanceof LargeLapotronicGeneratorMachine lapotronicMachine)) {
             return RecipeModifier.nullWrongType(LargeLapotronicGeneratorMachine.class, machine);
@@ -108,15 +108,14 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
         EnergyStack EUt = recipe.getOutputEUt();
         var recipeVoltage = EUt.voltage();
 
-        if (!lapotronicMachine.hasLiquidRedstone) {
+        if (!lapotronicMachine.hasLiquidRedstone()) {
             return ModifierFunction
                     .cancel(Component.translatable("info.monilabs.lapotronic_generator.no_redstone_available"));
         }
 
-        lapotronicMachine.isManaBoosted = lapotronicMachine.isBoostAllowed() &&
-                RecipeHelper.matchRecipe(lapotronicMachine, lapotronicMachine.getManaRecipe()).isSuccess();
-
         if (!EUt.isEmpty()) {
+            lapotronicMachine.isManaBoosted = lapotronicMachine.isBoostAllowed() &&
+                    RecipeHelper.matchRecipe(lapotronicMachine, lapotronicMachine.getManaRecipe()).isSuccess();
             double inputMultiplier = lapotronicMachine.isManaBoosted ? 2.0 : 1.0;
             double eutMultiplier = ((double) lapotronicMachine.getOverclockVoltage() / recipeVoltage) *
                     lapotronicMachine.getProductionBoost();
