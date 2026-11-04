@@ -19,10 +19,8 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.neganote.monilabs.common.data.materials.MoniMaterials;
-import net.neganote.monilabs.common.item.MoniItems;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
