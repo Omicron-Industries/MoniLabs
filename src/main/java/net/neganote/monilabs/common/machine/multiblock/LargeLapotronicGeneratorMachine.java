@@ -82,11 +82,15 @@ public class LargeLapotronicGeneratorMachine extends WorkableElectricMultiblockM
             }
         }
         // check boost fluid
-        if (isBoostAllowed() && runningTimer % (20 * 5) == 0) {
+        if (this.isManaBoosted && runningTimer % (20 * 5) == 0) {
             var boosterRecipe = getManaRecipe();
             this.isManaBoosted = RecipeHelper.matchRecipe(this, boosterRecipe).isSuccess() &&
                     RecipeHelper.handleRecipeIO(this, boosterRecipe, IO.IN, this.recipeLogic.getChanceCaches())
                             .isSuccess();
+            if (!this.isManaBoosted) {
+                recipeLogic.interruptRecipe();
+                return false;
+            }
         }
 
         runningTimer++;
