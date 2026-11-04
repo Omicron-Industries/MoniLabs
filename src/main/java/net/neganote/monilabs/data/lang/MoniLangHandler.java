@@ -115,8 +115,8 @@ public class MoniLangHandler {
         provider.add("tooltip.monilabs.extreme_lapotronic_generator.flavor",
                 "Ordered Molecular Array Potential Extractor");
 
-        provider.add("tooltip.monilabs.lapotronic_generator.quantum_flux_usage",
-                "§fUses 1200mb/hr §7 of §6Liquid Redstone §7while working§r");
+        provider.add("tooltip.monilabs.lapotronic_generator.redstone_usage",
+                "§fUses 1200mb/hr§7 of §6Liquid Redstone §7while working§r");
         provider.add("tooltip.monilabs.large_lapotronic_generator.primal_mana_usage",
                 "§fSupply 24 mB/min §7of §6Primal Mana §7to produce up to §f6144 EU/t §7at §f2x §7fuel consumption§r");
         provider.add("tooltip.monilabs.extreme_lapotronic_generator.primal_mana_usage",
