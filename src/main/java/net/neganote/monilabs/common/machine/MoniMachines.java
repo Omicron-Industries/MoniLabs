@@ -860,7 +860,7 @@ public class MoniMachines {
                         .rotationState(RotationState.ALL).recipeType(recipeType)
                         .recipeModifier(MoniRecipeModifiers.SIMPLE_LAPOGEN_OC, true)
                         .addOutputLimit(ItemRecipeCapability.CAP, 0).addOutputLimit(FluidRecipeCapability.CAP, 0)
-                        .simpleGeneratorModel(MoniLabs.id("block/generators/" + name))
+                        .simpleGeneratorModel(MoniLabs.id("block/overlay/machine/" + name))
                         .tooltips(workableTiered(tier, V[tier], V[tier] * 64L, recipeType, 0, false))
                         .register(),
                 tiers);
