@@ -71,7 +71,7 @@ public class MoniModels {
 
             ModelFile active = prov
                     .models()
-                    .cubeAll(ctx.getName(), texturePath.withSuffix("_active"));
+                    .cubeAll(ctx.getName() + "_active", texturePath.withSuffix("_active"));
 
             builder
                     .partialState()

@@ -4,7 +4,7 @@
       "model": "monilabs:block/lapotronic_tungstensteel_casing"
     },
     "active=true": {
-      "model": "monilabs:block/lapotronic_tungstensteel_casing"
+      "model": "monilabs:block/lapotronic_tungstensteel_casing_active"
     }
   }
 }

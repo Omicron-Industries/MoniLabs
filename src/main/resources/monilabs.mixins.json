@@ -18,6 +18,7 @@
     "easyanvils.ModAnvilMenuMixin",
     "enderio.EnchanterRecipeMixin",
     "gt.DataAccessHatchMixin",
+    "gt.GTMachineUtilsMixin",
     "gt.IMaterialPartItemMixin",
     "gt.LargeCombustionEngineMachineMixin",
     "gt.LargeTurbineMachineMixin",

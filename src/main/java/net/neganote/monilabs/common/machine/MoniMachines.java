@@ -729,6 +729,8 @@ public class MoniMachines {
                     holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.EV))
             .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
             .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
+            .rotationState(RotationState.ALL)
+            .generator(true)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("EBE", "FCF", "EBE")
@@ -750,7 +752,7 @@ public class MoniMachines {
                     GTCEu.id("block/multiblock/generator/large_combustion_engine"))
             .tooltips(Component.translatable("tooltip.monilabs.large_lapotronic_generator.flavor"),
                     Component.translatable("gtceu.universal.tooltip.base_production_eut", V[EV]),
-                    Component.translatable("tooltip.monilabs.lapotronic_generator.quantum_flux_usage"),
+                    Component.translatable("tooltip.monilabs.lapotronic_generator.redstone_usage"),
                     Component.translatable("tooltip.monilabs.large_lapotronic_generator.primal_mana_usage"))
             .register();
 
@@ -758,7 +760,9 @@ public class MoniMachines {
             .multiblock("extreme_lapotronic_generator",
                     holder -> new LargeLapotronicGeneratorMachine(holder, GTValues.IV))
             .recipeTypes(MoniRecipeTypes.LAPOTRONIC_GENERATOR_RECIPES)
-            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier) // Here too
+            .recipeModifiers(LargeLapotronicGeneratorMachine::recipeModifier)
+            .rotationState(RotationState.ALL)
+            .generator(true)
             .appearanceBlock(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("EBE", "FCF", "EBE")
@@ -780,7 +784,7 @@ public class MoniMachines {
                     GTCEu.id("block/multiblock/generator/large_combustion_engine"))
             .tooltips(Component.translatable("tooltip.monilabs.extreme_lapotronic_generator.flavor"),
                     Component.translatable("gtceu.universal.tooltip.base_production_eut", V[IV]),
-                    Component.translatable("tooltip.monilabs.lapotronic_generator.quantum_flux_usage"),
+                    Component.translatable("tooltip.monilabs.lapotronic_generator.redstone_usage"),
                     Component.translatable("tooltip.monilabs.extreme_lapotronic_generator.primal_mana_usage"))
             .register();
 
@@ -854,9 +858,9 @@ public class MoniMachines {
                         .editableUI(SimpleGeneratorMachine.EDITABLE_UI_CREATOR.apply(GTCEu.id(name),
                                 recipeType))
                         .rotationState(RotationState.ALL).recipeType(recipeType)
-                        .recipeModifier(SimpleGeneratorMachine::recipeModifier, true)
+                        .recipeModifier(MoniRecipeModifiers.SIMPLE_LAPOGEN_OC, true)
                         .addOutputLimit(ItemRecipeCapability.CAP, 0).addOutputLimit(FluidRecipeCapability.CAP, 0)
-                        .simpleGeneratorModel(MoniLabs.id("block/generators/" + name))
+                        .simpleGeneratorModel(MoniLabs.id("block/overlay/machine/" + name))
                         .tooltips(workableTiered(tier, V[tier], V[tier] * 64L, recipeType, 0, false))
                         .register(),
                 tiers);
