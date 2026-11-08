@@ -18,6 +18,7 @@
     "easyanvils.ModAnvilMenuMixin",
     "enderio.EnchanterRecipeMixin",
     "gt.DataAccessHatchMixin",
+    "gt.GTItemsMixin",
     "gt.GTMachineUtilsMixin",
     "gt.IMaterialPartItemMixin",
     "gt.LargeCombustionEngineMachineMixin",
@@ -26,6 +27,7 @@
     "gt.OpticalDataHatchMixin",
     "gt.PowerSubstationMachineMixin",
     "gt.RotorHolderMachineMixin",
+    "gt.RotorHolderPartMachineMixin",
     "gt.TurbineRotorBehaviourMixin"
   ],
   "client": [
