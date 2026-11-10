@@ -1,4 +1,4 @@
-# Moni Labs 0.24.3
+# Moni Labs 0.24.4
 
-* Added custom textures for the lapotronic generators, both singleblocks and multiblocks
-* Allow turbine rotors to stack to 16 outside of rotor holders (thanks Archengius)
+* Fix transparency effects not working properly with frames in the black hole render (thanks Jenya)
+* Made black hole radius slightly smaller to avoid some clipping
