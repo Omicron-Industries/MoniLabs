@@ -1,7 +1,4 @@
-# Moni Labs 0.24.2
+# Moni Labs 0.24.3
 
-* Lapotronic Generators now overclock instead of parallelizing. (Mana boosting still doubles parallels.)
-* Large/Extreme Lapotronic Generators now use Liquid Redstone instead of Quantum Flux to run.
-* Fixes to the running and boosting logic of Large/Extreme Lapotronic Generators.
-* Large/Extreme Lapotronic Generators now fully rotateable.
-* Increased Black Hole render distance.
+* Added custom textures for the lapotronic generators, both singleblocks and multiblocks
+* Allow turbine rotors to stack to 16 outside of rotor holders (thanks Archengius)
