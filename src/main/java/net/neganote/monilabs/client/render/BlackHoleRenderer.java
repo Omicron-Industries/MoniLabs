@@ -264,6 +264,7 @@ public class BlackHoleRenderer {
 
         if (Iris.getCurrentPack().isEmpty()) {
             RenderSystem.enableBlend();
+            RenderSystem.blendFunc(GL31.GL_ONE, GL31.GL_ONE_MINUS_SRC_ALPHA);
             miscTranslucentTexture.blitToScreen(miscTranslucentTexture.width, miscTranslucentTexture.height, false);
             RenderSystem.enableDepthTest();
         }

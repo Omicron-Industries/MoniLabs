@@ -63,10 +63,8 @@ public class DefaultChunkRendererMixin {
         GL31.glUniform1i(GL31.glGetUniformLocation(((ShaderChunkRendererAccessor) instance).getActiveProgram().handle(),
                 "uDrawInFrontOfBlackHole"), 1);
         GL31.glBindFramebuffer(GL31.GL_DRAW_FRAMEBUFFER, BlackHoleRenderer.miscTranslucentTexture.frameBufferId);
-        RenderSystem.disableBlend();
         executeDrawBatch(commandList,
                 tessellation,
                 batch);
-        RenderSystem.enableBlend();
     }
 }
