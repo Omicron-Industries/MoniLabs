@@ -8,7 +8,6 @@ import net.neganote.monilabs.mixin.accessor.ShaderChunkRendererAccessor;
 import net.neganote.monilabs.mixin.accessor.TerrainRenderPassAccessor;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.jellysquid.mods.sodium.client.gl.device.CommandList;
 import me.jellysquid.mods.sodium.client.gl.device.MultiDrawBatch;
 import me.jellysquid.mods.sodium.client.gl.tessellation.GlTessellation;
