@@ -8,7 +8,6 @@ import net.neganote.monilabs.mixin.accessor.ShaderChunkRendererAccessor;
 import net.neganote.monilabs.mixin.accessor.TerrainRenderPassAccessor;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.jellysquid.mods.sodium.client.gl.device.CommandList;
 import me.jellysquid.mods.sodium.client.gl.device.MultiDrawBatch;
 import me.jellysquid.mods.sodium.client.gl.tessellation.GlTessellation;
@@ -63,10 +62,8 @@ public class DefaultChunkRendererMixin {
         GL31.glUniform1i(GL31.glGetUniformLocation(((ShaderChunkRendererAccessor) instance).getActiveProgram().handle(),
                 "uDrawInFrontOfBlackHole"), 1);
         GL31.glBindFramebuffer(GL31.GL_DRAW_FRAMEBUFFER, BlackHoleRenderer.miscTranslucentTexture.frameBufferId);
-        RenderSystem.disableBlend();
         executeDrawBatch(commandList,
                 tessellation,
                 batch);
-        RenderSystem.enableBlend();
     }
 }
