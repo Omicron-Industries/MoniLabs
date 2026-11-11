@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.UUID;
 
 @Mixin(value = NotifiableEnergyContainer.class, remap = false)
 public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait<EnergyStack> {
@@ -53,18 +52,13 @@ public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait
     @Inject(method = "getEnergyStored()J", at = @At(value = "HEAD"), cancellable = true)
     private void monilabs$injectBeforeGetEnergyStored(CallbackInfoReturnable<Long> cir) {
         MetaMachine machine = getMachine();
-        if (machine.getLevel() instanceof ServerLevel) {
-            outputSubs = machine.subscribeServerTick(this.outputSubs, this::serverTick);
-            UUID uuid = machine.getOwnerUUID();
-            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
-            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
-                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
-                    return;
-                if (cemm.isProviding) {
-                    // return 1 less so active transformers won't turn off
-                    cir.setReturnValue(getEnergyCapacity() - 1);
-                }
+        if (UniqueWorkableElectricMultiblockMachine.machineIsActiveAndInTeam(machine, machine2 -> {
+            if (machine2 instanceof CreativeEnergyMultiMachine cemm) {
+                return cemm.isProviding;
             }
+            return false;
+        }, CreativeEnergyMultiMachine.class)) {
+            cir.setReturnValue(getEnergyCapacity() - 1);
         }
     }
 
@@ -73,17 +67,13 @@ public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait
     @Inject(method = "changeEnergy", at = @At(value = "HEAD"), cancellable = true)
     private void monilabs$injectBeforeChangeEnergy(long energyToAdd, CallbackInfoReturnable<Long> cir) {
         MetaMachine machine = getMachine();
-        if (machine.getLevel() instanceof ServerLevel) {
-            outputSubs = machine.subscribeServerTick(this.outputSubs, this::serverTick);
-            UUID uuid = machine.getOwnerUUID();
-            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
-            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
-                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
-                    return;
-                if (cemm.isProviding) {
-                    cir.setReturnValue(energyToAdd);
-                }
+        if (UniqueWorkableElectricMultiblockMachine.machineIsActiveAndInTeam(machine, machine2 -> {
+            if (machine2 instanceof CreativeEnergyMultiMachine cemm) {
+                return cemm.isProviding;
             }
+            return false;
+        }, CreativeEnergyMultiMachine.class)) {
+            cir.setReturnValue(energyToAdd);
         }
     }
 

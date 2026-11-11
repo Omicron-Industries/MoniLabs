@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -11,10 +12,12 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerLevel;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 // Copied from CosmicCore with some minor changes (thank you Caitlynn!)
 public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMultiblockMachine {
@@ -44,11 +47,41 @@ public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMul
     }
 
     public boolean isDuplicate() {
-        UUID owner = this.getOwnerUUID();
-        return owner != null &&
-                ACTIVE_OWNERS.containsKey(owner) &&
-                ACTIVE_OWNERS.get(owner).containsKey(getMachineType()) &&
-                ACTIVE_OWNERS.get(owner).get(getMachineType()) != this;
+        UUID playerUUID = this.getOwnerUUID();
+        if (playerUUID == null) return false;
+        if (ACTIVE_OWNERS.containsKey(playerUUID)) {
+            return ACTIVE_OWNERS.get(playerUUID).containsKey(getMachineType()) &&
+                    ACTIVE_OWNERS.get(playerUUID).get(getMachineType()) != this;
+        } else {
+            return ACTIVE_OWNERS.entrySet().stream()
+                    .filter(entry -> {
+                        MachineOwner owner = getOwner();
+                        if (owner == null) return false;
+                        return owner.isPlayerInTeam(playerUUID);
+                    })
+                    .anyMatch(entry -> entry.getValue().containsKey(getMachineType()) &&
+                            entry.getValue().get(getMachineType()) != this);
+        }
+    }
+
+    public static boolean machineIsActiveAndInTeam(MetaMachine machine, Predicate<MetaMachine> providing,
+                                                   Class<?> machineType) {
+        if (machine.getLevel() instanceof ServerLevel) {
+            UUID playerUUID = machine.getOwnerUUID();
+            if (playerUUID == null || playerUUID.equals(MachineOwner.EMPTY)) return false;
+            MachineOwner owner = machine.getOwner();
+            if (owner == null) return false;
+            return UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.entrySet().stream()
+                    .filter(entry -> owner.isPlayerInTeam(entry.getKey()))
+                    .anyMatch(entry -> {
+                        var uniqueMachines = entry.getValue();
+                        if (uniqueMachines != null && uniqueMachines.get(machineType) != null) {
+                            return providing.test(uniqueMachines.get(machineType));
+                        }
+                        return false;
+                    });
+        }
+        return false;
     }
 
     private void claimSlot(boolean promote) {
