@@ -1,4 +1,4 @@
-# Moni Labs 0.24.4
+# Moni Labs 0.24.5
 
-* Fix transparency effects not working properly with frames in the black hole render (thanks Jenya)
-* Made black hole radius slightly smaller to avoid some clipping
+* Fix clouds showing through black hole render (thanks Jenya)
+* Fix creative multi logic not being properly team-aware
