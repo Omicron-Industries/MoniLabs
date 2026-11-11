@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.UUID;
 
 @Mixin(value = NotifiableEnergyContainer.class, remap = false)
 public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait<EnergyStack> {
@@ -55,15 +54,10 @@ public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait
         MetaMachine machine = getMachine();
         if (machine.getLevel() instanceof ServerLevel) {
             outputSubs = machine.subscribeServerTick(this.outputSubs, this::serverTick);
-            UUID uuid = machine.getOwnerUUID();
-            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
-            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
-                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
-                    return;
-                if (cemm.isProviding) {
-                    // return 1 less so active transformers won't turn off
-                    cir.setReturnValue(getEnergyCapacity() - 1);
-                }
+            if (UniqueWorkableElectricMultiblockMachine.teamHasMachine(machine, CreativeEnergyMultiMachine.class,
+                    cemm -> cemm.isProviding)) {
+                // return 1 less so active transformers won't turn off
+                cir.setReturnValue(getEnergyCapacity() - 1);
             }
         }
     }
@@ -75,14 +69,9 @@ public class NotifiableEnergyContainerMixin extends NotifiableRecipeHandlerTrait
         MetaMachine machine = getMachine();
         if (machine.getLevel() instanceof ServerLevel) {
             outputSubs = machine.subscribeServerTick(this.outputSubs, this::serverTick);
-            UUID uuid = machine.getOwnerUUID();
-            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
-            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
-                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
-                    return;
-                if (cemm.isProviding) {
-                    cir.setReturnValue(energyToAdd);
-                }
+            if (UniqueWorkableElectricMultiblockMachine.teamHasMachine(machine, CreativeEnergyMultiMachine.class,
+                    cemm -> cemm.isProviding)) {
+                cir.setReturnValue(energyToAdd);
             }
         }
     }

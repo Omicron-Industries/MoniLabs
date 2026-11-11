@@ -13,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.UUID;
-
 @Mixin(value = PowerSubstationMachine.class, remap = false)
 public class PowerSubstationMachineMixin extends MetaMachine {
 
@@ -26,14 +24,9 @@ public class PowerSubstationMachineMixin extends MetaMachine {
     @Inject(method = "transferEnergyTick()V", at = @At(value = "HEAD"), cancellable = true)
     public void monilabs$injectBeforeTransferEnergyTick(CallbackInfo ci) {
         if (getLevel() instanceof ServerLevel) {
-            UUID uuid = this.getOwnerUUID();
-            var uniqueMachines = UniqueWorkableElectricMultiblockMachine.ACTIVE_OWNERS.get(uuid);
-            if (uniqueMachines != null && uniqueMachines.get(CreativeEnergyMultiMachine.class) != null) {
-                if (!(uniqueMachines.get(CreativeEnergyMultiMachine.class) instanceof CreativeEnergyMultiMachine cemm))
-                    return;
-                if (cemm.isProviding) {
-                    ci.cancel();
-                }
+            if (UniqueWorkableElectricMultiblockMachine.teamHasMachine(this, CreativeEnergyMultiMachine.class,
+                    cemm -> cemm.isProviding)) {
+                ci.cancel();
             }
         }
     }

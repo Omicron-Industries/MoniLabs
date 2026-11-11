@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
     public boolean isProviding = false;
 
     private final ConditionalSubscriptionHandler creativeSubscription;
+    private Set<UUID> previousTeamMembers = Set.of();
 
     public CreativeEnergyMultiMachine(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
@@ -30,6 +32,22 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
 
     private void tickSync() {
         syncCreativeEnergyState(!isDuplicate() && isWorkingEnabled() && recipeLogic.isWorking());
+        MachineOwner owner = getOwner();
+        Set<UUID> members = new HashSet<>();
+        if (owner != null) {
+            members.addAll(owner.getMembers());
+            members.add(owner.getPlayerUUID());
+        }
+        if (!members.equals(previousTeamMembers)) {
+            if (isProviding) {
+                Set<UUID> affected = new HashSet<>(previousTeamMembers);
+                affected.addAll(members);
+                notifyContainers(LOADED_ENERGY_CONTAINERS.stream()
+                        .filter(container -> affected.contains(container.getMachine().getOwnerUUID()))
+                        .toList());
+            }
+            previousTeamMembers = members;
+        }
     }
 
     public static void registerEnergyContainer(NotifiableEnergyContainer container) {
@@ -56,7 +74,13 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
         if (!(getLevel() instanceof ServerLevel)) return;
         if (active == this.isProviding) return;
         this.isProviding = active;
-        for (NotifiableEnergyContainer container : collectContainersInTeamOf(getOwnerUUID())) {
+        UUID uuid = getOwnerUUID();
+        if (uuid == null) return;
+        notifyContainers(collectContainersInTeamOf(uuid));
+    }
+
+    private static void notifyContainers(List<NotifiableEnergyContainer> containers) {
+        for (NotifiableEnergyContainer container : containers) {
             container.checkOutputSubscription();
             container.notifyListeners();
         }
@@ -65,12 +89,16 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
     private static List<NotifiableEnergyContainer> collectContainersInTeamOf(UUID teamMemberUUID) {
         return LOADED_ENERGY_CONTAINERS.stream()
                 .filter(container -> {
-                    UUID containerOwnerUUID = container.getMachine().getOwnerUUID();
-                    if (containerOwnerUUID == null) return false;
-                    MachineOwner containerOwner = MachineOwner.getOwner(containerOwnerUUID);
+                    MachineOwner containerOwner = container.getMachine().getOwner();
                     return containerOwner != null && containerOwner.isPlayerInTeam(teamMemberUUID);
                 })
                 .toList();
+    }
+
+    @Override
+    protected void onOwnerKeyChanged(UUID previousOwnerKey) {
+        if (previousOwnerKey == null && !isProviding) return;
+        notifyContainers(List.copyOf(LOADED_ENERGY_CONTAINERS));
     }
 
     @Override
