@@ -65,5 +65,6 @@ public class DefaultChunkRendererMixin {
         executeDrawBatch(commandList,
                 tessellation,
                 batch);
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
     }
 }
