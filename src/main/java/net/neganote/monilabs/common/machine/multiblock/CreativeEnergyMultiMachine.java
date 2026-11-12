@@ -65,7 +65,10 @@ public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblock
     private static List<NotifiableEnergyContainer> collectContainersInTeamOf(UUID teamMemberUUID) {
         return LOADED_ENERGY_CONTAINERS.stream()
                 .filter(container -> {
-                    UUID containerOwnerUUID = container.getMachine().getOwnerUUID();
+                    MachineOwner owner = container.getMachine().getOwner();
+                    // If we don't have access to the owner, default to not bothering
+                    if (owner == null) return false;
+                    UUID containerOwnerUUID = owner.getUUID();
                     if (containerOwnerUUID == null) return false;
                     MachineOwner containerOwner = MachineOwner.getOwner(containerOwnerUUID);
                     return containerOwner != null && containerOwner.isPlayerInTeam(teamMemberUUID);

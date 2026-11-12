@@ -13,10 +13,10 @@
   "uniforms": [
     { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
     { "name": "SpherePos", "type": "float", "count": 3, "values": [ 0.0, 0.0, 0.0 ] },
-    { "name": "uMass", "type": "float", "count": 1, "values": [ 12.066 ] },
+    { "name": "uMass", "type": "float", "count": 1, "values": [ 11.196 ] },
     { "name": "uDistModifier", "type": "float", "count": 1, "values": [ 0.15 ] },
-    { "name": "uSchwarzschildRadius", "type": "float", "count": 1, "values": [ 3.4 ] },
-    { "name": "uSphereRadius", "type": "float", "count": 1, "values": [ 6.933 ] },
+    { "name": "uSchwarzschildRadius", "type": "float", "count": 1, "values": [ 3.155 ] },
+    { "name": "uSphereRadius", "type": "float", "count": 1, "values": [ 6.433 ] },
     { "name": "uWriteOnlyDepth", "type": "int", "count": 1, "values": [ 0.0 ] }
   ]
 }
