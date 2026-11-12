@@ -8,6 +8,7 @@ import net.irisshaders.iris.pipeline.programs.ExtendedShader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.neganote.monilabs.client.render.MicroverseRenderHelper;
 
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import org.lwjgl.opengl.GL31;
@@ -31,7 +32,7 @@ public class ExtendedShaderMixin {
         if (instance.hasSampler("_EndPortalTexture")) {
             var id = Minecraft.getInstance().getTextureManager().getTexture(TheEndPortalRenderer.END_PORTAL_LOCATION)
                     .getId();
-            var sampler = new GlSampler(true, false, false, false);
+            var sampler = new GlSampler(false, false, false, false);
             IrisRenderSystem.samplerParameteri(sampler.getId(), GL31.GL_TEXTURE_WRAP_S, GL31.GL_REPEAT);
             IrisRenderSystem.samplerParameteri(sampler.getId(), GL31.GL_TEXTURE_WRAP_T, GL31.GL_REPEAT);
             instance.addDynamicSampler(TextureType.TEXTURE_2D, () -> id, sampler, "_EndPortalTexture");
@@ -39,8 +40,19 @@ public class ExtendedShaderMixin {
         if (instance.hasSampler("_EndSkyTexture")) {
             var id = Minecraft.getInstance().getTextureManager().getTexture(TheEndPortalRenderer.END_SKY_LOCATION)
                     .getId();
-            instance.addDynamicSampler(TextureType.TEXTURE_2D, () -> id, new GlSampler(true, false, false, false),
+            var sampler = new GlSampler(false, false, false, false);
+            IrisRenderSystem.samplerParameteri(sampler.getId(), GL31.GL_TEXTURE_WRAP_S, GL31.GL_REPEAT);
+            IrisRenderSystem.samplerParameteri(sampler.getId(), GL31.GL_TEXTURE_WRAP_T, GL31.GL_REPEAT);
+            instance.addDynamicSampler(TextureType.TEXTURE_2D, () -> id, sampler,
                     "_EndSkyTexture");
+        }
+        if (instance.hasSampler("_CosmicWebTexture")) {
+            var id = Minecraft.getInstance().getTextureManager().getTexture(MicroverseRenderHelper.COSMIC_WEB_LOCATION)
+                    .getId();
+            var sampler = new GlSampler(true, false, false, false);
+            IrisRenderSystem.samplerParameteri(sampler.getId(), GL31.GL_TEXTURE_WRAP_S, GL31.GL_REPEAT);
+            IrisRenderSystem.samplerParameteri(sampler.getId(), GL31.GL_TEXTURE_WRAP_T, GL31.GL_REPEAT);
+            instance.addDynamicSampler(TextureType.TEXTURE_2D, () -> id, sampler, "_CosmicWebTexture");
         }
         return instance;
     }

@@ -1,34 +1,33 @@
 #version 330 core
 
-#line 0 1
-/*#version 150*/
-
-vec4 projection_from_position(vec4 position) {
-    vec4 projection = position * 0.5;
-    projection.xy = vec2(projection.x + projection.w, projection.y + projection.w);
-    projection.zw = position.zw;
-    return projection;
-}
-#line 3 0
-
 in vec3 Position;
 in vec3 BaseColor;
 in vec4 ParticleSpeeds;
 in uvec4 Colors;
+in vec4 Anchor;
+in float Integrity;
+in float RenderEffect;
 
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
+uniform mat3 IViewRotMat;
 
-out vec4 texProj0;
+out vec3 vViewRay;
 flat out uvec4 vColors;
 flat out vec3 vBaseColor;
 flat out vec4 vParticleSpeeds;
+flat out vec4 vAnchor;
+flat out float vIntegrity;
+flat out uint vRenderEffect;
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-    texProj0 = projection_from_position(gl_Position);
+    vViewRay = IViewRotMat * Position;
     vBaseColor = BaseColor;
     vParticleSpeeds = ParticleSpeeds;
     vColors = Colors;
+    vAnchor = vec4(IViewRotMat * Anchor.xyz, Anchor.w);
+    vIntegrity = Integrity;
+    vRenderEffect = uint(RenderEffect);
 }
