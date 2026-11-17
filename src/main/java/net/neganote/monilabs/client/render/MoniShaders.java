@@ -15,7 +15,7 @@ import java.io.IOException;
 public class MoniShaders {
 
     public static ShaderInstance WORMHOLE_SHADER;
-    public static ShaderInstance ENDPORTAL_COLORED_SHADER;
+    public static ShaderInstance MICROVERSE_SHADER;
 
     @SubscribeEvent
     public static void shaderRegistry(RegisterShadersEvent event) {
@@ -25,8 +25,8 @@ public class MoniShaders {
                     (shaderInstance -> WORMHOLE_SHADER = shaderInstance));
 
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                    MoniLabs.id("rendertype_colored_endportal"), MoniRenderTypes.POSITION_VEC4_COLOR_PACKEDVEC4UINTS),
-                    (shaderInstance -> ENDPORTAL_COLORED_SHADER = shaderInstance));
+                    MoniLabs.id("rendertype_microverse"), MoniVertexFormats.MICROVERSE),
+                    (shaderInstance -> MICROVERSE_SHADER = shaderInstance));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
