@@ -3,6 +3,7 @@
   "package": "net.neganote.monilabs.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
+  "mixinextras": {"minVersion": "0.5.3"},
   "plugin": "net.neganote.monilabs.mixin.MoniMixinPlugin",
   "refmap": "mixins.monilabs.refmap.json",
   "mixins": [
@@ -20,6 +21,7 @@
     "gt.DataAccessHatchMixin",
     "gt.GTItemsMixin",
     "gt.GTMachineUtilsMixin",
+    "gt.GTRecipeTypesMixin",
     "gt.IMaterialPartItemMixin",
     "gt.LargeCombustionEngineMachineMixin",
     "gt.LargeTurbineMachineMixin",
