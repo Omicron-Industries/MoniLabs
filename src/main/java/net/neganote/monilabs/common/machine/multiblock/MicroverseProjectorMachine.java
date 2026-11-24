@@ -188,6 +188,7 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
     @Override
     public void afterWorking() {
         super.afterWorking();
+        healMicroverse();
         var activeRecipe = recipeLogic.getLastRecipe();
         if (activeRecipe != null && activeRecipe.data.contains("updated_microverse")) {
             int updatedMicroverse = activeRecipe.data.getInt("updated_microverse");
@@ -196,6 +197,17 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
     }
 
     public void microverseTick() {
+        healMicroverse();
+        if (microverse.decayRate != 0) {
+            int decayRate = microverse.decayRate;
+            microverseIntegrity -= decayRate;
+            if (microverseIntegrity <= 0) {
+                updateMicroverse(0, false);
+            }
+        }
+    }
+
+    private void healMicroverse() {
         if (inputBuses == null || inputBuses.isEmpty()) {
             inputBuses = getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP).stream()
                     .filter(NotifiableItemStackHandler.class::isInstance)
@@ -231,13 +243,6 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
                         recipeLogic.setProgress(Math.max(1, recipeLogic.getProgress() - (20 * rollbackCount)));
                     }
                 }
-            }
-        }
-        if (microverse.decayRate != 0) {
-            int decayRate = microverse.decayRate;
-            microverseIntegrity -= decayRate;
-            if (microverseIntegrity <= 0) {
-                updateMicroverse(0, false);
             }
         }
     }
